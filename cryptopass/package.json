@@ -1,0 +1,22 @@
+{
+  "name": "cryptopass_poc",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "skata": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.1.0",
+    "@hono/zod-validator": "^0.1.8",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1",
+    "hono": "^3.6.0",
+    "qrcode": "^1.5.3",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.2",
+    "tsx": "^3.12.2"
+  }
+}
