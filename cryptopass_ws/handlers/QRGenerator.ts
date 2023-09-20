@@ -18,23 +18,22 @@ export const qrCodeCreator = (ctx) => {
     const accessToken: accessTokenType = null;
 
     ctx.status(200);
-    ctx.text(generateQRFromObj);
+    ctx.json({ At: accessToken, success: true });
   } catch (error) {
     console.error("Error verifying signed message:", error);
     return ctx.res
       .status(500)
-      .json({ message: "Failed to verify signed message" });
+      .json({ message: "Failed to verify signed message", success: false });
   }
 };
 
-// With async/await
-const generateQRFromObj = async (obj: accessTokenType) => {
-  try {
-    const qrEncode = await QRCode.toDataURL(JSON.stringify(obj));
-    console.log("The Access ObJ: ", obj);
-    console.log("The QR Encoded: ", qrEncode);
-    return qrEncode;
-  } catch (err) {
-    console.error(err);
-  }
-};
+// const generateQRFromObj = async (obj: accessTokenType) => {
+//   try {
+//     const qrEncode = await QRCode.toDataURL(JSON.stringify(obj));
+//     console.log("The Access ObJ: ", obj);
+//     console.log("The QR Encoded: ", qrEncode);
+//     return qrEncode;
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };

@@ -48,10 +48,10 @@ export const web3authTest = async (ctx, failOnPurpuse = false) => {
     console.log("The Retrieved Data: ", testBodyData);
 
     const message = testBodyData.nonce;
+    const signedMessage = testBodyData.signedMessage;
     const userAddress = failOnPurpuse
       ? testBodyData.userAddress + "--ERROR--"
       : testBodyData.userAddress;
-    const signedMessage = testBodyData.signedMessage;
 
     console.log("-------------------------------------");
     console.log(">> Altering User's Address to produce Error:");

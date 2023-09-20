@@ -53,9 +53,12 @@ export const qrCodeCreator = async (ctx, failOnPurpuse = false) => {
 // With async/await
 const generateQRFromObj = async (obj: accessTokenType) => {
   try {
+    console.log("Enconding Access Token...", obj);
     const qrEncode = await QRCode.toDataURL(JSON.stringify(obj));
-    console.log("The Access ObJ: ", obj);
-    console.log("Type of (QR Encoded): ", typeof qrEncode);
+    console.log("Successfully Encoded Access Token!");
+    console.log(qrEncode);
+    // console.log("The Access Token Obj: ", obj);
+    // console.log("Type of (QR Encoded): ", typeof qrEncode);
     // console.log("The QR Encoded: ", qrEncode);
     return qrEncode;
   } catch (err) {
