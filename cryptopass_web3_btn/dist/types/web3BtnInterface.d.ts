@@ -2,7 +2,12 @@ import { Properties } from "csstype";
 export interface IWeb3ButtonOptions {
     onSuccess?: () => void;
     onFailure?: () => void;
+    web3AuthAPI: string;
+    contractAddr: string;
     styles?: SafeStyleProperties;
+    disableDefaultStyles?: boolean;
+    customClass?: string;
+    button: HTMLButtonElement;
 }
 export default interface IWeb3Button {
     render: (parentElement: HTMLElement) => void;

@@ -3,7 +3,12 @@ import { Properties } from "csstype";
 export interface IWeb3ButtonOptions {
   onSuccess?: () => void;
   onFailure?: () => void;
+  web3AuthAPI: string;
+  contractAddr: string;
   styles?: SafeStyleProperties;
+  disableDefaultStyles?: boolean;
+  customClass?: string;
+  button: HTMLButtonElement;
 }
 
 export default interface IWeb3Button {
@@ -13,14 +18,6 @@ export default interface IWeb3Button {
   // button: HTMLButtonElement;
   render: (parentElement: HTMLElement) => void;
 }
-
-// export type CSSStyles = {
-//   [K in keyof CSSStyleDeclaration]?: string;
-// };
-
-// type StringKeys<T> = Exclude<keyof T, number>;
-// type NonSymbolKeys<T> = Exclude<keyof T, symbol>;
-// type NonSymbolAndNumberKeys<T> = Exclude<keyof T, symbol | number>;
 
 type CSSKeys = keyof CSSStyleDeclaration;
 type PropertyKeys = keyof Properties<string | number>;
