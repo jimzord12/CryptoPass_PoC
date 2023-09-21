@@ -28,7 +28,7 @@ if (process.env.IS_PRODUCTION == "yes") {
 
   cryptopass.get("/web3auth", web3auth);
   cryptopass.get("/qrCodeCreator", qrCodeCreator);
-
+ 
   console.log();
   console.log("For Web3 Auth Testing: http://localhost:8787/web3auth");
   console.log("For QR Code Testing: http://localhost:8787/qrCodeCreator");
@@ -38,6 +38,7 @@ if (process.env.IS_PRODUCTION == "yes") {
   console.log("You are in [TEST MODE]");
 
   cryptopass.get("/testing/web3auth", (ctx) => web3authTest(ctx));
+  // cryptopass.get("/bagdes/:address", (ctx) => web3authTest(ctx));
   cryptopass.get("/testing/qrCodeCreator", (ctx) => QR_Tester(ctx));
 
   console.log();
