@@ -1,4 +1,4 @@
-import { accessTokenType } from "../types/web3";
+import { accessTokenType } from "../types/web3.js";
 import QRCode from "qrcode";
 
 export const qrCodeCreator = (ctx) => {

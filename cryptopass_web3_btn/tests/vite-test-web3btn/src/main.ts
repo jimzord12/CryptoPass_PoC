@@ -88,7 +88,7 @@ const web3Button = new Web3Button({
       appDiv.style.backgroundColor = colors.failColor;
     }
   },
-  web3AuthAPI: import.meta.env.VITE_WS_URL + "/verify-signature",
+  web3AuthAPI: import.meta.env.VITE_WS_URL + "/web3auth",
   roleAPI: import.meta.env.VITE_WS_URL + "/retrieve-role",
   rolesEnum: ["None", "Student", "Professor", "Staff", "Admin"],
   chainId: Number(import.meta.env.VITE_CHAIN_ID) ?? 11155111,

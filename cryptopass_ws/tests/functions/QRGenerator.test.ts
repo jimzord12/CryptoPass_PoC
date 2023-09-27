@@ -1,6 +1,6 @@
-import { accessTokenType } from "../../types/web3";
+import { accessTokenType } from "../../types/web3.js";
 import QRCode from "qrcode";
-import { getObjectSize } from "./getMemorySize";
+import { getObjectSize } from "./getMemorySize.js";
 
 export const qrCodeCreator = async (ctx, failOnPurpuse = false) => {
   try {

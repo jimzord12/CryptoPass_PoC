@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext"
   }
 }

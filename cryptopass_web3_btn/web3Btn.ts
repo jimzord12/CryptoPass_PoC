@@ -246,7 +246,7 @@ export class Web3Button implements IWeb3Button {
       this.web3AuthAPI,
       authData
     );
-    console.log("👉 Express WS (localhost) Response: ", response);
+    console.log("👉 Hono WS (localhost) Response: ", response);
     return response.data.verified;
   }
 

@@ -1,5 +1,5 @@
 import { ethers, Wallet } from "ethers";
-import { web3AuthType } from "../../types/web3";
+import { web3AuthType } from "../../types/web3.js";
 import { HTTPException } from "hono/http-exception";
 
 export async function generateAndSign(): Promise<web3AuthType> {
