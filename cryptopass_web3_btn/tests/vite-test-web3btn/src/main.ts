@@ -33,6 +33,16 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <li> Create SBTs (SoulBound Tokens) </li>
       </ul>
     </ul>
+
+    <h2>Before Clicking...</h1>
+    <p> Do not forget to: </p>
+
+    <ol style="text-align: left;">
+      <li> Start the WS Express Local Server</li>
+      <li> Make sure the WS's Wallet has ETH </li>
+      <li> Deploy the Contracts at Sepolia (if their Address are lost) </li>
+      <li> From Remix IDE, use the WS's address to make WS an Authorized Personel </li>
+    </ol>
     
     <div class="card">
       <p> Press for the magic to begin... </p>
@@ -88,47 +98,3 @@ const web3Button = new Web3Button({
 
 const web3container = document.querySelector<HTMLDivElement>("#web3btn")!;
 web3Button.render(web3container);
-
-// const web3ButtonFail = new Web3Button({
-//   onSuccess: (role) => {
-//     if (appDiv) {
-//       console.log("The [onSuccess] was Executed");
-//       appDiv.style.backgroundColor = colors.successColor;
-//       console.log("✅ 1. The User is Authenticated!");
-//       console.log("✅ 2. The User's Role is: ", role);
-//       console.log(
-//         "⚖ The Depending the System, you make the call on what to do from here, Mr. or Ms. Web Dev 😋"
-//       );
-//       console.log("👉 Example: Navigate user to an Authorized Page...");
-//     }
-//   },
-//   onFailure: () => {
-//     if (appDiv) {
-//       console.log("The [onFailure] was Executed");
-//       appDiv.style.backgroundColor = colors.failColor;
-//       console.log(
-//         "⚖ The Depending the System, you make the call on what to do from here, Mr. or Ms. Web Dev 😋"
-//       );
-//       console.log(
-//         "👉 Example: Do Nothing! I have already added Toast Notification for you 💖"
-//       );
-//     }
-//   },
-//   web3AuthAPI: import.meta.env.VITE_WS_URL + "/verify-signature",
-//   roleAPI: import.meta.env.VITE_WS_URL + "/retrieve-role",
-//   rolesEnum: ["None", "Student", "Professor", "Staff", "Admin"],
-//   contractAddr: import.meta.env.VITE_SBT_CONTRACT_ADDRESS!,
-//   chainId: Number(import.meta.env.VITE_CHAIN_ID) ?? 11155111,
-//   abi: abi,
-//   styles: {
-//     backgroundImage:
-//       "radial-gradient( 100% 100% at 100% 0, #e62517 0, #70231d 100%)",
-//   },
-// });
-
-// const web3container = document.querySelector<HTMLDivElement>("#web3btn")!;
-// // const web3containerFail =
-// //   document.querySelector<HTMLDivElement>("#web3btn_fail")!;
-
-// web3Button.render(web3container);
-// web3ButtonFail.render(web3containerFail);

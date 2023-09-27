@@ -4,7 +4,6 @@ import Toastify from "toastify-js";
 import axios from "axios";
 import { ethers, BigNumberish, getNumber } from "ethers";
 
-// import "dotenv/config";
 import "toastify-js/src/toastify.css";
 
 // This function detects most providers injected at window.ethereum.
@@ -32,15 +31,6 @@ export class Web3Button implements IWeb3Button {
   private button: HTMLButtonElement;
   // private provider: EthereumProvider | null;
   private provider: any | null; // TODO: Find EthereumProvider Type
-
-  // private static defaultStyles: Properties = {
-  //   backgroundColor: "#4CAF50", // Example: Green background
-  //   color: "white", // White text
-  //   padding: "10px 20px", // Some padding
-  //   border: "none", // No border
-  //   cursor: "pointer", // Hand cursor on hover
-  //   // ... any other default styles you want
-  // };
 
   constructor(options: IWeb3ButtonOptions) {
     this.onSuccess =
@@ -74,35 +64,6 @@ export class Web3Button implements IWeb3Button {
 
     // Not in Options Object, just gets created what constructor runs
     this.button = this._createButton();
-  }
-
-  help() {
-    console.log(
-      "Here are the properties of the Options Object you must pass into the Constructor:"
-    );
-    console.log();
-    console.table({
-      onSuccess:
-        "Insert a Function that should be executed if the Auth is successful. For instance: () => redirect('/authPages/home')",
-      onFailure:
-        "Insert a Function that should be executed if the Auth Fails. For instance: () => showErrorAlert('You do not have Access for this Service')",
-      web3AuthAPI:
-        "To check if the request sender is the true owner of the crypto-wallet, a WS must perform some asymmetric cryptography. Provide the WS endpoint here. The HTTP request must GET. For example: 'http://my-awesome-web-server/web3auth' ",
-      contractAddr:
-        "The address of the Contract containing the SoulBound Tokens (SBTs). Should be something like this: 0xb794f5ea0ba39494ce839613fffba74279579268",
-      styles:
-        "The Button comes with some predefined styles. However, you can provide additional or override the existing ones. To do so, insert something like this: { backgroundColor: 'red', padding: '32px 16px', ...}.",
-      disableDefaultStyles:
-        "If you wish to change the styles entirely, assign 'true' this property and add a custom CSS Class",
-      customClass:
-        "The name of your custom CSS Class. This provides you with the complete control over the buttons styles.",
-    });
-    console.log(
-      "Here is an example of a Options Object that you must pass into the Constructor:"
-    );
-    console.log({
-      onSuccess: "A function with this signature: () => void, ",
-    });
   }
 
   render(parentElement: HTMLElement) {
@@ -217,12 +178,6 @@ export class Web3Button implements IWeb3Button {
       this._showErrorNotification("MetaMask Wallet Extention is Required!");
       return;
     }
-    // Here you can add the logic for:
-    // 2. Checking wallet connectivity.
-    // 3. Checking the network chain ID.
-    // 4. Making the user sign a message.
-    // 5. Checking for a specific NFT.
-    // Depending on the results, call this.onSuccess or this.onFailure.
   }
 
   private async _getRoleFromWS() {
@@ -305,9 +260,6 @@ export class Web3Button implements IWeb3Button {
     const _provider = await detectEthereumProvider();
 
     if (_provider) {
-      // From now on, this should always be true:
-      // provider === window.ethereum
-      // startApp(provider); // initialize your app
       this.provider = _provider;
       return true;
     } else {
@@ -344,18 +296,3 @@ export class Web3Button implements IWeb3Button {
     );
   }
 }
-
-// ✨ Usage Example:
-/*
-const btn = new Web3Button({
-  onSuccess: () => console.log("Success!"),
-  onFailure: () => console.log("Failure."),
-  styles: {
-    backgroundColor: "blue",
-    color: "white",
-    padding: "10px 15px",
-  },
-});
-
-btn.render(document.body); // This would append the button to the body.
-*/
