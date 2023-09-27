@@ -39,9 +39,9 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
     <ol style="text-align: left;">
       <li> Start the WS Express Local Server</li>
-      <li> Make sure the WS's Wallet has ETH </li>
-      <li> Deploy the Contracts at Sepolia (if their Address are lost) </li>
-      <li> From Remix IDE, use the WS's address to make WS an Authorized Personel </li>
+      <li> Make sure the WS's Wallet has ETH (see WS's console logs) </li>
+      <li> Deploy the Contracts at Sepolia (if their Addresses are lost) </li>
+      <li> From Remix IDE, use the WS's address to give Auth Privs to WS </li>
     </ol>
     
     <div class="card">
