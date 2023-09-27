@@ -11,10 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
+    "axios": "^1.5.1",
     "csstype": "^3.1.2",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1",
+    "toastify-js": "^1.12.0",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@types/css-modules": "^1.0.3"
+    "@types/css-modules": "^1.0.3",
+    "@types/toastify-js": "^1.12.1"
   }
 }
