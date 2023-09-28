@@ -269,6 +269,7 @@ export class Web3Button implements IWeb3Button {
   }
 
   private async getAccount() {
+    let success;
     const accounts = await window.ethereum
       .request({ method: "eth_requestAccounts" })
       .catch((err: { code: number }) => {
@@ -276,12 +277,16 @@ export class Web3Button implements IWeb3Button {
           // EIP-1193 userRejectedRequest error
           // If this happens, the user rejected the connection request.
           console.log("Please connect to MetaMask.");
+          this._showErrorNotification("Please connect to MetaMask");
+          success = false;
         } else {
           console.error(err);
+          success = false;
         }
       });
     this.account = accounts[0];
-    return true;
+    success = true;
+    return success;
     // showAccount.innerHTML = account;
   }
 
