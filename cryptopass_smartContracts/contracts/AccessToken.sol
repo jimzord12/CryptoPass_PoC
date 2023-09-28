@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -20,7 +21,8 @@ interface ICryptoPass {
     function hasSBT() external view returns (bool result);
 }
 
-contract AccessToken is ERC721, Ownable {
+// This "IERC721Receiver", allows the contract to receive the SoulBound NFT
+contract AccessToken is ERC721, Ownable, IERC721Receiver {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -45,6 +47,15 @@ contract AccessToken is ERC721, Ownable {
         address _cryptoPassAddress
     ) ERC721("CryptoPassAccessToken", "CPATK") {
         cryptoPassContract = ICryptoPass(_cryptoPassAddress); // Connecting the 2 Contracts, CryptoPass must be deployed first!
+    }
+
+    function onERC721Received(
+        address /* operator */,
+        address /* from */,
+        uint256 /* tokenId */,
+        bytes calldata /* data */
+    ) external pure override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     function checkTokenExpTime(uint16 _numberOfBlocks) external onlyOwner {
@@ -88,6 +99,12 @@ contract AccessToken is ERC721, Ownable {
         emit TokenMinted(tokenId, role, exp); // Emitting the event with details
 
         return tokenId;
+    }
+
+    function changeCryptoPassAddress(
+        address _newContractAddr
+    ) external onlyOwner {
+        cryptoPassContract = ICryptoPass(_newContractAddr);
     }
 
     function getTokenData(

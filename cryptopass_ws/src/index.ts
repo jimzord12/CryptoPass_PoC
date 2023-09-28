@@ -11,28 +11,51 @@ import { qrCodeCreator } from "../handlers/QRGenerator.js";
 import { web3authTest } from "../tests/functions/web3auth.test.js";
 import { qrCodeCreator as QR_Tester } from "../tests/functions/QRGenerator.test.js";
 import { ethers } from "ethers";
-import { abi } from "../web3/cryptopass/index.js";
+import { cryptoPassAbi, accessTokenAbi } from "../web3/cryptopass/index.js";
 
 const cryptopass = new Hono();
 
+// *** Intinializing Web3 Staff...***
+
+// Getting a provider, a entity (usually a WS) which will given us access to the
+// blockchain network. In this case, Infura
 const provider = new ethers.JsonRpcProvider(
   "https://sepolia.infura.io/v3/" + process.env.INFURA_SEPOLIA_API_KEY
 );
 
-const privateKey = process.env.PRIVATE_KEY;
+// Creating a Wallet for our WS
+const privateKey = process.env.PRIVATE_KEY; // We need a Private key
+const wallet = new ethers.Wallet(privateKey, provider); // BY combining a Priv key & the provider we get wallet.
+const walletAddr = wallet.address; // Here we extract the Public Address of that Wallet
+const signer = wallet.connect(provider); // Here (even though it not be needed) we infused the wallet with the provider
+// Which effectively allows us to perform transaction to the network
+// NOTE: If you do NOT do this, when performing read-only (calling a Solidity view function)
+// call, the msg.sender address will be the zero-address (0x0000...0000) which depending on
+// your WS logic, might not be what you want.
 
-const cryptoPassContractAddr = process.env.CONTRACT_ADDRESS; // Oracle's address
+const cryptoPassContractAddr = process.env.CRYPTOPASS_CONTRACT_ADDRESS;
+const accessTokenContractAddr = process.env.ACCESSTOKEN_CONTRACT_ADDRESS;
 
-const cryptoPassAbi = abi.abi; // Replace with your contract's ABI
+const cryptoPassABI = cryptoPassAbi.abi;
+const accessTokenABI = accessTokenAbi.abi;
 
-const wallet = new ethers.Wallet(privateKey, provider);
-const walletAddr = wallet.address;
-const signer = wallet.connect(provider);
+// Creating Contracts
 export const cryptoPass = new ethers.Contract(
   cryptoPassContractAddr,
-  cryptoPassAbi,
+  cryptoPassABI,
   signer
 );
+
+export const accessToken = new ethers.Contract(
+  accessTokenContractAddr,
+  accessTokenABI,
+  signer
+);
+
+// ### Ultra Important! ###
+// 1. Do not forget to make the AccessToken a authorized Personel
+// 2. Mint an SBT for AccessToken Contract
+// ### Ultra Important! ###
 
 console.log("The WS Wallet Public Addr: ", walletAddr);
 // Fetch the balance

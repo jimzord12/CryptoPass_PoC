@@ -1,3 +1,4 @@
-import abi from "./abi.json";
+import cryptoPassAbi from "./cryptoPassAbi.json";
+import accessTokenAbi from "./cryptoPassAbi.json";
 
-export { abi };
+export { cryptoPassAbi, accessTokenAbi };
