@@ -19,29 +19,49 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h2>Testing Web3 Button Module</h1>
     
     <p> For the Button to Work it needs: </p>
-    <ul style="text-align: left;">
-      <li> A Web Server which can perform the following:</li>
-      <ul>
-        <li> Web3 Authentication (Wallet Ownership Challenge) </li>
-        <li> Call Smart Contract View Functions</li>
-        <li> For the Button to Work it needs: </li>
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <ul style="text-align: left;">
+        <li> A Web Server which can perform the following:</li>
+        <ul>
+          <li> Web3 Authentication (Wallet Ownership Challenge) </li>
+          <li> Call Smart Contract View Functions</li>
+          <li> For the Button to Work it needs: </li>
+        </ul>
+        <br />
+        <li> A Smart Contract which can perform the following:</li>
+        <ul>
+          <li> Access Control based on Roles </li>
+          <li> Create SBTs (SoulBound Tokens) </li>
+        </ul>
       </ul>
-      <br />
-      <li> A Smart Contract which can perform the following:</li>
-      <ul>
-        <li> Access Control based on Roles </li>
-        <li> Create SBTs (SoulBound Tokens) </li>
-      </ul>
-    </ul>
+    </div>
 
     <h2>Before Clicking...</h1>
     <p> Do not forget to: </p>
 
     <ol style="text-align: left;">
-      <li> Start the WS Hono Local Server</li>
-      <li> Make sure the WS's Wallet has ETH (see WS's console logs) </li>
-      <li> Deploy Contracts using HardHat Node </li>
-      <li> Use ScriptRunner. Located at Hardhat > scripts > actions > scriptRunner.ts </li>
+      <li> Start the Local Hardhat Blockchain Node: <code>npx hardhat node</code></li>
+      <li> Use ScriptRunner (Hardhat > scripts > actions) to Deploy SC 
+        <code>npx hardhat run --network localhost scripts/actions/scriptRunner.ts
+        </code>
+      </li>
+      <li> Deploy Contracts using Hardhat's Deploy Script (No.13, No args needed)         
+        <code>
+          Enter the number of the script you want to run: 13
+        </code>
+      </li>
+      <li> Start the WS Hono Local Server <code>npm start
+      </code></li>
+      <li> Make sure the WS's Wallet has ETH & has Auth (see WS's console logs) 
+        <br/>
+        <div style="margin-top: 24px;">
+          <code>
+            Balance of The WS Wallet is: 250.0 ETH
+            [GOOD]: WS is Authorized by the Contract!
+          </code>
+        </div>
+      </li>
+      <li> Use ScriptRunner to Run Tests & Simulations. Located at Hardhat > scripts > actions > scriptRunner.ts </li>
     </ol>
     
     <div class="card">
@@ -51,10 +71,13 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </div>
             
     <p class="read-the-docs">
-    This Module is created for an Undergraduate Student's Thesis.
+    🔷 This Module is created for an Undergraduate Student's Thesis. 🔷
     </p>
     <p class="read-the-docs">
-    University of West Attika (UNIWA)
+    🔷 Elena (Surname) 🔷
+    </p>
+    <p class="read-the-docs">
+    🔷 University of West Attika (UNIWA) 🔷
     </p>
       
   </div>
@@ -77,7 +100,7 @@ const web3Button = new Web3Button({
       console.log("✅ 1. The User is Authenticated!");
       console.log("✅ 2. The User's Role is: ", role);
       console.log(
-        "⚖ The Depending the System, you make the call on what to do from here, Mr. or Ms. Web Dev 😋"
+        "⚖ Depending on the System, you must decide on what to do from here, Mr. or Ms. Web Dev 😋"
       );
       console.log("👉 Example: Navigate user to an Authorized Page...");
     }
@@ -91,7 +114,7 @@ const web3Button = new Web3Button({
   web3AuthAPI: import.meta.env.VITE_WS_URL + "/web3auth",
   roleAPI: import.meta.env.VITE_WS_URL + "/retrieve-role",
   rolesEnum: ["None", "Student", "Professor", "Staff", "Admin"],
-  chainId: Number(import.meta.env.VITE_CHAIN_ID) ?? 11155111,
+  chainId: Number(import.meta.env.VITE_CHAIN_ID) ?? 31337,
   contractAddr: import.meta.env.VITE_SBT_CONTRACT_ADDRESS!,
   abi: abi,
 });

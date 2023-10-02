@@ -1,29 +1,45 @@
 import { accessTokenType } from "../types/web3.js";
+import { accessToken as accessTokenContract } from "../src/contracts.js";
 import QRCode from "qrcode";
 
-export const qrCodeCreator = (ctx) => {
+export const qrCodeCreator = async (ctx) => {
   try {
     console.log("-------------------------------------");
     console.log();
-    console.log("Retrieving the Auth Data...");
+    console.log("== QR Code Creator ==");
     console.log();
-    console.log("The Retrieved Data: ", ctx.req.body);
+    console.log("The Retrieved Data (Address): ", ctx.req.body);
 
     const userAddress = ctx.req.body.userAddress;
 
     // TODO:
-    // 1. Call QR CODE Smart Contract ...
+    // 1. Call Access Token Smart Contract ...
     // This creates an Access Token inside the Contract
-    // 2. Store the Result, which is of type: (accessTokenType) see ../types/web3
-    const accessToken: accessTokenType = null;
+    const accessTokenId = await accessTokenContract.mintToken(userAddress);
+    console.log("The Minted Token ID: ", accessTokenId);
+
+    // This get the Data
+    const accessTokenData = await accessTokenContract.getTokenData(
+      accessTokenId
+    );
+    console.log("The Obtained TokenData: ", accessTokenData);
+
+    // 2. Convert to JS Obj
+    // This is sent to the Frontend to be encoded into a QR Code
+    const accessToken: accessTokenType = {
+      atId: accessTokenData.id.toString(),
+      role: accessTokenData.role.toString(),
+      expDate: accessTokenData.exp.toString(), // UNIX Timestamp
+    };
+    console.log("The Converted TokenData: ", accessToken);
 
     ctx.status(200);
-    ctx.json({ At: accessToken, success: true });
+    return ctx.json({ At: accessToken, success: true });
   } catch (error) {
-    console.error("Error verifying signed message:", error);
-    return ctx.res
-      .status(500)
-      .json({ message: "Failed to verify signed message", success: false });
+    console.error("Error Generating QR Code:", error);
+    ctx.status(500);
+
+    return ctx.json({ message: "Failed to Generate QR Code" });
   }
 };
 

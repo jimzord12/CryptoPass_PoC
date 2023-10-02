@@ -121,6 +121,10 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
             "CPATK: Insufficient Access Level"
         ); // Restricting Access
         require(!_isTokenExpired(tokenId), "CPATK: Token has expired");
+        require(
+            balanceOf(ownerOf(tokenId)) == 1,
+            "CPATK: User already has an Unused and Unexpired AccessToken"
+        );
 
         _burn(tokenId); // Token can only be used once
     }
