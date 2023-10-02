@@ -119,7 +119,13 @@ export class Web3Button implements IWeb3Button {
         // ✅ On Correct Network
         // Time for Wallet Ownership Challenge:
         // 1. Get random Number from Browser's Engine
-        const result = await this._signatureVerification();
+        let result: Boolean = false;
+        try {
+          result = await this._signatureVerification();
+        } catch (error) {
+          console.log("⛔ Server Error. Server is probably down.");
+          this._showErrorNotification("Server Error. Server is probably down.");
+        }
         if (result) {
           // ✅ Wallet Ownership Passed!
           // Creating the Contract Instance

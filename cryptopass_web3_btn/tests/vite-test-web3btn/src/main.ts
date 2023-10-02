@@ -89,7 +89,7 @@ const appDiv = document.querySelector<HTMLBodyElement>("body");
 
 const colors = {
   failColor: "#701b15",
-  successColor: "#53ba41",
+  successColor: "#226317",
 };
 
 const web3Button = new Web3Button({
