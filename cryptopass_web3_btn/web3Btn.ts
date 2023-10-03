@@ -137,39 +137,30 @@ export class Web3Button implements IWeb3Button {
           // const finisedInit: boolean = await this._createContractConnection();
           console.log("🧪 5. Wallet Ownership Authentication was a Success");
           // Calling SBT contract
-          if (true) {
-            try {
-              this.role = await this._getRoleFromWS();
-            } catch (error) {
-              console.log("ERRRRROR: ", error);
-              this._showErrorNotification(
-                "Server Error, please try again later"
-              );
-              return;
-            }
-            if (
-              this.rolesEnum.includes(this.role ?? "") &&
-              this.role !== "None"
-            ) {
-              console.log(
-                "✅🧪 7.1 You Possess an SBT, and have a Role! Nice 😋"
-              );
-              console.log("✅ 7.2 The onSuccess Function shall be executed:");
-              this.onSuccess(this.role!);
-            } else {
-              // ⛔ You do NOT possess a SBT Token
-              this._showErrorNotification(
-                "😅 You probaly do NOT possess a SBT Token! Boomer..."
-              );
-              console.log("⛔ 7.3 The onFailure Function shall be executed:");
-              this.onFailure();
-              return;
-            }
-          } else {
-            // ⛔ Problem with Creating the Smart Contract
-            this._showErrorNotification(
-              "Problem with Creating the Smart Contract"
+
+          try {
+            this.role = await this._getRoleFromWS();
+          } catch (error) {
+            console.log("ERRRRROR: ", error);
+            this._showErrorNotification("Server Error, please try again later");
+            return;
+          }
+          if (
+            this.rolesEnum.includes(this.role ?? "") &&
+            this.role !== "None"
+          ) {
+            console.log(
+              "✅🧪 7.1 You Possess an SBT, and have a Role! Nice 😋"
             );
+            console.log("✅ 7.2 The onSuccess Function shall be executed:");
+            this.onSuccess(this.role!);
+          } else {
+            // ⛔ You do NOT possess a SBT Token
+            this._showErrorNotification(
+              "😅 You probaly do NOT possess a SBT Token! Boomer..."
+            );
+            console.log("⛔ 7.3 The onFailure Function shall be executed:");
+            this.onFailure();
             return;
           }
         } else {

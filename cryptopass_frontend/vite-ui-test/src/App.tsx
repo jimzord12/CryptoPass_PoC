@@ -1,28 +1,35 @@
 import { useState, useEffect, useRef } from "react";
-// import { ethers } from "ethers";
+import { ethers } from "ethers";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 
 import Web3Button from "../../../cryptopass_web3_btn/index";
-// import contractData from "../../../cryptopass_smartContracts/contractData.json";
+import contractData from "../../../cryptopass_smartContracts/contractData.json";
 
-// const cryptoPassContractAddr = contractData.cryptopass.address;
-// const accessTokenContractAddr = contractData.accesstoken.address;
-// const cryptoPassABI = contractData.cryptopass.abi;
+import StatusDot from "./StatusDot";
+
+const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
+// const provider = new ethers.BrowserProvider(window.ethereum);
+
+// const signer = await provider.getSigner();
+
+const cryptoPassContractAddr = contractData.cryptopass.address;
+const accessTokenContractAddr = contractData.accesstoken.address;
+const cryptoPassABI = contractData.cryptopass.abi;
 // const accessTokenABI = contractData.accesstoken.abi;
-// // Creating Contracts
+// Creating Contracts
 
-// export const cryptoPass = new ethers.Contract(
-//   cryptoPassContractAddr,
-//   cryptoPassABI,
-//   signer
-// );
+const cryptoPass = new ethers.Contract(
+  cryptoPassContractAddr,
+  cryptoPassABI,
+  provider
+);
 
-// export const accessToken = new ethers.Contract(
+// const accessToken = new ethers.Contract(
 //   accessTokenContractAddr,
 //   accessTokenABI,
-//   signer
+//   provider
 // );
 // ##
 function App() {
@@ -47,9 +54,24 @@ function App() {
     "Admin",
   ]);
 
+  const [hardhatStatus, setHardhatStatus] = useState<boolean>(false);
+  // const [walletConnection, setWalletConnection] = useState<boolean>(false);
+  const [cryptoPassContractStatus, setCryptoPassContractStatus] =
+    useState<boolean>(false);
+  const [accessTokenContractStatus, setAccessTokenContractStatus] =
+    useState<boolean>(false);
+  const [webServerStatus, setWebServerStatus] = useState<boolean>(false);
+  const [webServerAuthStatus, setWebServerAuthStatus] =
+    useState<boolean>(false);
+
   useEffect(() => {
     // console.log("1. 🍰 Use Effect has run");
     // console.log("2. 🍰 ", web3ButtonContainerRef.current);
+    checkHardhatStatus();
+    checkCryptoPassContractDeployment();
+    checkAccessTokenContractDeployment();
+    checkWebServerStatus();
+    checkWebServerAuthStatus();
 
     if (
       // !web3ButtonContainerRef.current &&
@@ -91,6 +113,83 @@ function App() {
     }
   }, [web3AuthAPI, roleAPI, chainId, roleType]);
 
+  const checkHardhatStatus = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8545/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "net_version",
+          params: [],
+          id: 42,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.result) {
+        setHardhatStatus(true);
+      } else {
+        setHardhatStatus(false);
+      }
+    } catch (error) {
+      setHardhatStatus(false);
+    }
+  };
+
+  const checkContractDeployment = async (address: string): Promise<boolean> => {
+    try {
+      const code = await provider.getCode(address);
+      return code !== "0x";
+    } catch (error) {
+      console.error(`Error checking contract at address ${address}:`, error);
+      return false;
+    }
+  };
+
+  const checkCryptoPassContractDeployment = async (): Promise<void> => {
+    const success = await checkContractDeployment(cryptoPassContractAddr);
+    if (success) setCryptoPassContractStatus(true);
+  };
+
+  const checkAccessTokenContractDeployment = async (): Promise<void> => {
+    const success = await checkContractDeployment(accessTokenContractAddr);
+    if (success) setAccessTokenContractStatus(true);
+  };
+
+  const checkWebServerStatus = async () => {
+    try {
+      const response = await fetch(import.meta.env.VITE_WS_URL as string);
+      if (response.ok) {
+        setWebServerStatus(true);
+      } else {
+        setWebServerStatus(false);
+      }
+    } catch (error) {
+      setWebServerStatus(false);
+    }
+  };
+
+  const checkWebServerAuthStatus = async () => {
+    try {
+      // This is just a hypothetical endpoint. Replace with an actual auth check endpoint if different.
+      const success = await cryptoPass._authPersonal(
+        import.meta.env.VITE_WS_ADDRESS
+      );
+      if (success) {
+        setWebServerAuthStatus(true);
+      } else {
+        setWebServerAuthStatus(false);
+      }
+    } catch (error) {
+      setWebServerAuthStatus(false);
+      console.log("⛔ Error while checking if WS has Auth: ", error);
+    }
+  };
+
   return (
     <>
       <div>
@@ -102,6 +201,20 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      <div className="status-container">
+        {/* <StatusDot status={walletConnection} label="Wallet Connection" /> */}
+        <StatusDot status={hardhatStatus} label="Hardhat Local Blockchain" />
+        <StatusDot
+          status={cryptoPassContractStatus}
+          label="CryptoPass Contract"
+        />
+        <StatusDot
+          status={accessTokenContractStatus}
+          label="AccessToken Contract"
+        />
+        <StatusDot status={webServerStatus} label="Web Server" />
+        <StatusDot status={webServerAuthStatus} label="Web Server has Auth" />
+      </div>
       <div className="card">
         <div className="options-container">
           <div className="options-title">
