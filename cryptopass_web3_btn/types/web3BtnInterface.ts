@@ -9,8 +9,8 @@ export interface IWeb3ButtonOptions {
 
   chainId: number;
   account?: string | null;
-  contractAddr: string;
-  abi: any;
+  // contractAddr: string;
+  // abi: any;
   styles?: SafeStyleProperties;
   disableDefaultStyles?: boolean;
   customClass?: string;
@@ -24,6 +24,7 @@ export default interface IWeb3Button {
   // styles: SafeStyleProperties;
   // button: HTMLButtonElement;
   render: (parentElement: HTMLElement) => void;
+  getButtonElement: () => HTMLButtonElement;
 }
 
 type CSSKeys = keyof CSSStyleDeclaration;

@@ -72,6 +72,7 @@ cryptoPass
       console.log(
         "----- AN ERROR WAS THROUGH WHILE TRYING TO SEE IF WS HAS AUTH -----"
       );
+      console.error(error);
     } else {
       throw error;
     }

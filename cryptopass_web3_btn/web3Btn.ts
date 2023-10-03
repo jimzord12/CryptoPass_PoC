@@ -2,7 +2,7 @@ import IWeb3Button, { IWeb3ButtonOptions } from "./types/web3BtnInterface";
 import { SafeStyleProperties } from "./types/web3BtnInterface";
 import Toastify from "toastify-js";
 import axios from "axios";
-import { ethers, BigNumberish, getNumber } from "ethers";
+import { ethers } from "ethers";
 
 import "toastify-js/src/toastify.css";
 
@@ -18,11 +18,11 @@ export class Web3Button implements IWeb3Button {
   private web3AuthAPI: string;
   private roleAPI: string;
   private rolesEnum: string[];
-  private contractAddr: string;
+  // private contractAddr: string;
   private chainId: number;
   private account?: string | null = null;
-  private contract?: any = null;
-  private abi?: any;
+  // private contract?: any = null;
+  // private abi?: any;
   private styles?: SafeStyleProperties;
   private disableDefaultStyles?: boolean = false;
   private customClass?: string;
@@ -49,14 +49,14 @@ export class Web3Button implements IWeb3Button {
     this.rolesEnum =
       options.rolesEnum ?? this._notImplementedError("rolesEnum", "Property");
 
-    this.contractAddr =
-      options.contractAddr ??
-      this._notImplementedError("contractAddr", "Property");
+    // this.contractAddr =
+    //   options.contractAddr ??
+    //   this._notImplementedError("contractAddr", "Property");
     this.chainId =
       options.chainId ?? this._notImplementedError("ChainId", "Property");
-    this.abi =
-      options.abi ??
-      this._notImplementedError("Contrct ABI Required!", "Property");
+    // this.abi =
+    //   options.abi ??
+    //   this._notImplementedError("Contrct ABI Required!", "Property");
 
     this.styles = options.styles;
     this.disableDefaultStyles = options.disableDefaultStyles;
@@ -68,6 +68,11 @@ export class Web3Button implements IWeb3Button {
 
   render(parentElement: HTMLElement) {
     parentElement.appendChild(this.button);
+  }
+
+  getButtonElement(): HTMLButtonElement {
+    console.log("From Web3 Button CLass: ", this.button);
+    return this.button;
   }
 
   // *** PRIVATE METHODS ***
@@ -129,10 +134,10 @@ export class Web3Button implements IWeb3Button {
         if (result) {
           // ✅ Wallet Ownership Passed!
           // Creating the Contract Instance
-          const finisedInit: boolean = await this._createContractConnection();
+          // const finisedInit: boolean = await this._createContractConnection();
           console.log("🧪 5. Wallet Ownership Authentication was a Success");
           // Calling SBT contract
-          if (finisedInit) {
+          if (true) {
             try {
               this.role = await this._getRoleFromWS();
             } catch (error) {
@@ -176,7 +181,7 @@ export class Web3Button implements IWeb3Button {
         }
       } else {
         // ⛔ Wallet points to Wrong Network
-        this._showErrorNotification("Wrong Network, try to Swith to Sepolia");
+        this._showErrorNotification("Wrong Network, Swith to Hardhat Local");
         return;
       }
     } else {
@@ -217,15 +222,16 @@ export class Web3Button implements IWeb3Button {
     }).showToast();
   }
 
-  private async _createContractConnection() {
-    const _contract = new ethers.Contract(
-      this.contractAddr,
-      this.abi,
-      this.provider
-    );
-    this.contract = _contract;
-    return true;
-  }
+  // private async _createContractConnection() {
+  //   const _contract = new ethers.Contract(
+  //     this.contractAddr,
+  //     this.abi,
+  //     this.provider
+  //   );
+  //   this.contract = _contract;
+  //   return true;
+  // }
+
   private async _signatureVerification() {
     const randomValues = new Uint32Array(1);
     window.crypto.getRandomValues(randomValues);
