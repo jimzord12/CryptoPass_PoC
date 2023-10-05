@@ -62,6 +62,7 @@ async function main() {
       console.log("::: YOU MUST SENT ETH -> SERVER :::");
     }
   });
+
   cryptoPass
     ._authPersonal(walletAddr)
     .then((hasAuth) => {
