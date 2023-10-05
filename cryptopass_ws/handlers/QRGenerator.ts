@@ -1,26 +1,36 @@
 import { accessTokenType } from "../types/web3.js";
-import { accessToken as accessTokenContract } from "../src/contracts.js";
+import {
+  accessToken as accessTokenContract,
+  providerInitSuccessful,
+} from "../src/contracts.js";
 import QRCode from "qrcode";
+import { getNumber } from "ethers";
 
 export const qrCodeCreator = async (ctx) => {
+  if (providerInitSuccessful === false) {
+    ctx.status(500);
+    return ctx.json({
+      success: false,
+      error: "⛔ Error: The Provider's Server is Down for the count",
+    });
+  }
   try {
+    const request = await ctx.req.json();
+    const { userAddress } = request;
     console.log("-------------------------------------");
     console.log();
     console.log("== QR Code Creator ==");
     console.log();
-    console.log("The Retrieved Data (Address): ", ctx.req.body);
+    console.log("The Retrieved Data (Address): ", request);
 
-    const userAddress = ctx.req.body.userAddress;
+    await accessTokenContract.mintToken(userAddress);
 
-    // TODO:
-    // 1. Call Access Token Smart Contract ...
-    // This creates an Access Token inside the Contract
-    const accessTokenId = await accessTokenContract.mintToken(userAddress);
+    const accessTokenId = await accessTokenContract.getTokenId(userAddress);
     console.log("The Minted Token ID: ", accessTokenId);
 
     // This get the Data
     const accessTokenData = await accessTokenContract.getTokenData(
-      accessTokenId
+      getNumber(accessTokenId)
     );
     console.log("The Obtained TokenData: ", accessTokenData);
 

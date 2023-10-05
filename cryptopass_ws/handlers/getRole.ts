@@ -1,7 +1,14 @@
 import { getNumber } from "ethers";
-import { cryptoPass } from "../src/contracts.js";
+import { cryptoPass, providerInitSuccessful } from "../src/contracts.js";
 
 export const getRole = async (ctx) => {
+  if (providerInitSuccessful === false) {
+    ctx.status(500);
+    return ctx.json({
+      success: false,
+      error: "⛔ Error: The Provider's Server is Down for the count",
+    });
+  }
   // const body = await ctx.req.json();
 
   const { address } = await ctx.req.json();
@@ -11,6 +18,9 @@ export const getRole = async (ctx) => {
   try {
     const howIsMsgSender = await cryptoPass.showMsgSender();
     console.log("The Msg.Sender: ", howIsMsgSender);
+    console.log();
+    console.log("=== GET ROLE ===");
+    console.log();
 
     const _userRole = await cryptoPass.getUserRole(address);
     const serialisedBigNum = getNumber(_userRole);

@@ -7,10 +7,15 @@ import "dotenv/config";
 import { web3auth } from "../handlers/web3Auth.js";
 import { getRole } from "../handlers/getRole.js";
 import { qrCodeCreator } from "../handlers/QRGenerator.js";
+import { createSBT } from "../handlers/createSBT.js";
+import { useAccessToken } from "../handlers/useAccessToken.js";
+import { qrCodeValidator } from "../handlers/QRValidator.js";
 
 // Testing
 import { web3authTest } from "../tests/functions/web3auth.test.js";
 import { qrCodeCreator as QR_Tester } from "../tests/functions/QRGenerator.test.js";
+
+import { providerInitSuccessful } from "./contracts.js";
 // import { cryptoPassAbi, accessTokenAbi } from "../web3/cryptopass/index.js";
 
 const cryptopass = new Hono();
@@ -29,7 +34,12 @@ if (process.env.IS_PRODUCTION == "yes") {
   cryptopass.post("/web3auth", web3auth);
   cryptopass.post("/retrieve-role", getRole);
 
+  cryptopass.post("/createSBT", createSBT);
+
   cryptopass.post("/qrCodeCreator", qrCodeCreator);
+  cryptopass.post("/qrCodeValidator", qrCodeValidator);
+
+  cryptopass.post("/useAccessToken", useAccessToken);
 
   console.log();
   console.log("For Web3 Auth Testing: http://localhost:8787/web3auth");

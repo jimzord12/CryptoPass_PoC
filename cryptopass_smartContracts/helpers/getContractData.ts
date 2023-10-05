@@ -6,7 +6,7 @@ interface ContractData {
 export const getContractData = async (contractName: string): Promise<any> => {
   console.log("Running getContractData!");
   const allContractData: ContractData = await import("../contractData.json");
-  return findNestedObj(allContractData, contractName);
+  return findNestedObj(allContractData, contractName.toLowerCase());
 };
 
 function findNestedObj<T extends Record<string, any>>(

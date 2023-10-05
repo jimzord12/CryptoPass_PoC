@@ -1,7 +1,15 @@
 import { ethers } from "ethers";
+import { providerInitSuccessful } from "../src/contracts.js";
 // import { generateAndSign } from "../tests/functions/web3auth.test";
 
 export const web3auth = async (ctx) => {
+  if (providerInitSuccessful === false) {
+    ctx.status(500);
+    return ctx.json({
+      success: false,
+      error: "⛔ Error: The Provider's Server is Down for the count",
+    });
+  }
   const body = await ctx.req.json();
   try {
     console.log("-------------------------------------");

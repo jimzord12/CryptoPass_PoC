@@ -89,6 +89,7 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
         uint256 tokenId = _tokenIdCounter.current(); // Getting current Token ID
         _tokenIdCounter.increment(); // New token ID
         _mint(to, tokenId); // Minting new Token
+        _ownerToTokenId[to] = tokenId; // Store the mapping of owner to tokenId
 
         ICryptoPass.Role role = cryptoPassContract.getUserRole(to); // Get the Role from CryptoPass SC
 
@@ -125,8 +126,9 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
             balanceOf(ownerOf(tokenId)) == 1,
             "CPATK: User already has an Unused and Unexpired AccessToken"
         );
-
+        address tokenOwner = ownerOf(tokenId);
         _burn(tokenId); // Token can only be used once
+        delete _ownerToTokenId[tokenOwner]; // Clear the mapping
     }
 
     function _isTokenExpired(uint256 tokenId) internal view returns (bool) {

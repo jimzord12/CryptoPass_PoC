@@ -6,6 +6,10 @@ import hre from "hardhat";
 
 import { deployContract } from "../helpers/deployContract";
 import { storeContractData } from "../helpers/storeContractData";
+import {
+  authorizeAddress,
+  createSBT,
+} from "./actions/cryptopass/stateAltering";
 
 // Command to Run:
 // npx hardhat run --network localhost scripts/myDeploys.ts
@@ -26,11 +30,19 @@ export async function main() {
     deployerAddress
   );
 
+  // Giving AccessToken Contract Auth + SBT
+  await authorizeAddress(accessTokenAddr, "deployer");
+  await createSBT(accessTokenAddr, 4, "deployer");
+
   if (!ethers.isAddress(ws_address)) {
     console.error(
       "The WS_ADDRESS environment variable is not a valid Ethereum address!"
     );
   } else {
+    // Giving Hono Web Server Auth + SBT
+    await authorizeAddress(ws_address, "deployer");
+    await createSBT(ws_address, 4, "deployer");
+
     // / Send 250 ETH to the ws_address
     const amountToSend = ethers.parseEther("250"); // Convert 250 ETH to Wei
     const tx = await deployer.sendTransaction({

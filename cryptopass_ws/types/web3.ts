@@ -9,3 +9,14 @@ export interface accessTokenType {
   role: string;
   expDate: Number; // UNIX Timestamp
 }
+
+export interface accessTokenType2 {
+  decodedData: {
+    At: {
+      atId: Number;
+      role: string;
+      expDate: Number; // UNIX Timestamp
+    };
+    success: boolean;
+  };
+}
