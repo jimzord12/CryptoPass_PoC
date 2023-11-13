@@ -64,8 +64,8 @@ export async function main() {
   console.log(`2. The Network's accounts: ${hre.network.config.accounts}`);
   console.log(`3. The Network's from: ${hre.network.config.from}`);
   console.log(`4. The Network's gas: ${hre.network.config.gas}`);
-  console.log(`4. The Network's name: ${hre.network.name}`);
-  console.log(`4. The Network's provider: ${hre.network.provider}`);
+  console.log(`5. The Network's name: ${hre.network.name}`);
+  console.log(`6. The Network's provider: ${hre.network.provider}`);
 }
 
 // async function storeContractData(

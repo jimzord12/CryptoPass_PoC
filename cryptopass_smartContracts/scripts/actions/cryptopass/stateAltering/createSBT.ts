@@ -1,16 +1,24 @@
 import { ethers } from "hardhat";
 
-import { createInstance } from "../../../../helpers/createInstance";
 import { signers } from "../../../../constants/signers";
+import { createInstance } from "../../../../helpers/createInstance";
 
-
-export async function createSBT(toAddress: string, accessLevel: number, selectedSigner: "deployer" | "manager" | "simplerUser") {
+export async function createSBT(
+  toAddress: string,
+  accessLevel: number,
+  selectedSigner: "deployer" | "manager" | "simplerUser"
+) {
   const _signers = await ethers.getSigners();
   const whichSigner = signers.indexOf(selectedSigner);
   const signer = _signers[whichSigner];
 
   const contract = await createInstance("cryptopass", signer);
-  console.log("Running Test!");
+  console.log(
+    "Running createSBT, toAddress: ",
+    toAddress,
+    "| accessLevel: ",
+    accessLevel
+  );
   contract.createSBT(toAddress, accessLevel);
 }
 

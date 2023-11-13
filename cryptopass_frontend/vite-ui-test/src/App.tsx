@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { ethers } from "ethers";
 import axios from "axios";
-import QRCode from "react-qr-code";
+import { ethers } from "ethers";
 import { saveAs } from "file-saver";
 import jsQR from "jsqr";
+import { useEffect, useRef, useState } from "react";
+import QRCode from "react-qr-code";
 // import htmlToImage from "html-to-image";
 
 // Images
@@ -14,12 +14,12 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 // My Files
-import Web3Button from "../../../cryptopass_web3_btn/index";
 import contractData from "../../../cryptopass_smartContracts/contractData.json";
+import Web3Button from "../../../cryptopass_web3_btn/index";
 
 // Components
-import StatusDot from "./StatusDot";
 import MyButton from "./MyButton";
+import StatusDot from "./StatusDot";
 
 const WS_URL = "http://localhost:8787/";
 
@@ -97,6 +97,7 @@ function App() {
   const [webServerStatus, setWebServerStatus] = useState<boolean>(false);
   const [webServerAuthStatus, setWebServerAuthStatus] =
     useState<boolean>(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const [btnIsActive, setBtnIsActive] = useState<boolean | null>(null);
 
@@ -154,6 +155,7 @@ function App() {
           title.style.color = "green";
           container.classList.add("wobble-hor-bottom");
           setBtnIsActive(true);
+          setLoggedIn(true);
         },
         onFailure: () => {
           console.log("Login failed.");
@@ -391,8 +393,9 @@ function App() {
           status={accessTokenContractStatus}
           label="AccessToken Contract"
         />
-        <StatusDot status={webServerStatus} label="Web Server" />
+        <StatusDot status={webServerStatus} label="Web Server Status" />
         <StatusDot status={webServerAuthStatus} label="Web Server has Auth" />
+        <StatusDot status={loggedIn} label="Logged In" />
       </div>
       <div className="card">
         <div className="options-container">
@@ -576,7 +579,7 @@ function QRDecoder({ canvasRef, setDecodedData, decodedData }: any) {
         videoRef.current.play();
 
         // Start checking for QR codes every second
-        const interval = setInterval(checkForQRCode, 2000);
+        const interval = setInterval(checkForQRCode, 1000);
         return () => clearInterval(interval);
       } catch (err) {
         console.error("Error accessing the webcam", err);
