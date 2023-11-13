@@ -1,5 +1,5 @@
 import { AwesomeButton } from "react-awesome-button";
-import "react-awesome-button/dist/styles_rick.css";
+// import "react-awesome-button/dist/styles_rick.css";
 // import "react-awesome-button/dist/styles.css";
 type props = {
   label: string;
