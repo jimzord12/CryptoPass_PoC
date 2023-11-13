@@ -382,20 +382,22 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className="status-container">
-        {/* <StatusDot status={walletConnection} label="Wallet Connection" /> */}
-        <StatusDot status={hardhatStatus} label="Hardhat Local Blockchain" />
-        <StatusDot
-          status={cryptoPassContractStatus}
-          label="CryptoPass Contract"
-        />
-        <StatusDot
-          status={accessTokenContractStatus}
-          label="AccessToken Contract"
-        />
-        <StatusDot status={webServerStatus} label="Web Server Status" />
-        <StatusDot status={webServerAuthStatus} label="Web Server has Auth" />
-        <StatusDot status={loggedIn} label="Logged In" />
+      <div className="center-it">
+        <div className="status-container">
+          {/* <StatusDot status={walletConnection} label="Wallet Connection" /> */}
+          <StatusDot status={hardhatStatus} label="Hardhat Local Blockchain" />
+          <StatusDot
+            status={cryptoPassContractStatus}
+            label="CryptoPass Contract"
+          />
+          <StatusDot
+            status={accessTokenContractStatus}
+            label="AccessToken Contract"
+          />
+          <StatusDot status={webServerStatus} label="Web Server Status" />
+          <StatusDot status={webServerAuthStatus} label="Web Server has Auth" />
+          <StatusDot status={loggedIn} label="Logged In" />
+        </div>
       </div>
       <div className="card">
         <div className="options-container">
@@ -406,7 +408,7 @@ function App() {
           <div className="spacerY"></div>
           <div className="card-options">
             <div className="options-item">
-              <label>Web3 Auth API:</label>
+              <label>Web3 Auth - WS Endpoint:</label>
               <input
                 value={web3AuthAPI}
                 onChange={(e) => setWeb3AuthAPI(e.target.value)}
@@ -553,15 +555,122 @@ function App() {
             </>
           )}
         </>
-
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
+      <RunStep
+        stepNumber={1}
+        textPart="Install Frontend Deps"
+        codePart="cryptopass_frontend\vite-ui-test"
+      />
+      <RunStep
+        stepNumber={2}
+        textPart="Run the Vite, the Frontend"
+        codePart="npm run dev"
+      />
+      <RunStep
+        stepNumber={3}
+        textPart="Start the Local Blockchain, new terminal and"
+        codePart="PATH: cryptopass_smartContracts | npx hardhat node"
+      />
+      <RunStep
+        stepNumber={4}
+        textPart="Deploy the Contracts + Give ETH to WS"
+        codePart="npx hardhat run --network localhost scripts/actions/scriptRunner.ts"
+      />
+      <RunStep
+        stepNumber={5}
+        textPart="A CLI Menu will appear"
+        codePart="enter 13 and press 'Enter'"
+      />
+      <RunStep
+        stepNumber={6}
+        textPart="Create new terminal, Navigate to"
+        codePart="cryptopass_ws"
+      />
+      <RunStep
+        stepNumber={7}
+        textPart="There simply run"
+        codePart="npm start"
+      />
+      <RunStep
+        stepNumber={8}
+        textPart="You should see this"
+        codePart="Balance of The WS Wallet is: 250.0 ETH
+[GOOD]: WS is Authorized by the Contract!"
+      />
+      <RunStep
+        stepNumber={9}
+        textPart="Now Go back to the Frontend"
+        codePart="open Chrome..."
+      />
+      <RunStep
+        stepNumber={10}
+        textPart="Refresh the page (http://localhost:5173/), and all the dots should be green"
+        codePart="expect the last"
+      />
+      <RunStep
+        stepNumber={11}
+        textPart="Log in to Metamask"
+        codePart="npm start"
+      />
+      <RunStep
+        stepNumber={12}
+        textPart="You should have Custom Network for Hardhat"
+        codePart="RPC: http://127.0.0.1:8545/ | Chain ID: 1337"
+      />
+      <RunStep
+        stepNumber={13}
+        textPart="In the Frontend, press the 'Web3 Auth'"
+        codePart="npm start"
+      />
+      <RunStep
+        stepNumber={14}
+        textPart="This should make the Last red dot turn"
+        codePart="green"
+      />
+      <RunStep
+        stepNumber={15}
+        textPart="The request SBT, should display after pressing"
+        codePart="That you already have one"
+      />
+      <RunStep
+        stepNumber={16}
+        textPart="Press the 'Check SBT' to see your Access Level"
+        codePart="Should be Admin"
+      />
+      <RunStep
+        stepNumber={17}
+        textPart="By pressing the 'Request QR Code', A QR code generated from your SBT"
+        codePart="will be diplayed"
+      />
+      <RunStep
+        stepNumber={18}
+        textPart="Use your phone to capture the QR Code, and show the Image to your web cam"
+        codePart="Once it shakes, it means it got it"
+      />{" "}
+      <RunStep
+        stepNumber={19}
+        textPart="Now, press the 'Use Access Token', and the Access token is burned..."
+        codePart="for ever"
+      />{" "}
+      <RunStep
+        stepNumber={20}
+        textPart="Of course you can repeat this process for"
+        codePart="ever... and ever..."
+      />
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
     </>
+  );
+}
+
+function RunStep({ stepNumber, textPart, codePart }: any) {
+  return (
+    <p>
+      {`Step ${stepNumber} | 
+      ${textPart}: `}
+      <code>{codePart}</code>
+    </p>
   );
 }
 
