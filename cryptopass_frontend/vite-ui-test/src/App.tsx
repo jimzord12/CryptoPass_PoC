@@ -444,7 +444,7 @@ function App() {
       <div className="divider" />
       <div className="card">
         <div className="section-02">
-          <h2>Step #2 - Secretary Dpt.</h2>
+          <h2>Step #2</h2>
           <div className="options-container">
             <div className="options-title">
               Web3 Button <br />
@@ -488,7 +488,7 @@ function App() {
         <div ref={web3ButtonContainerRef} />
         <div className="divider"></div>
         <div className="section-03">
-          <h2>Step #3</h2>
+          <h2>Step #3 - Secretary Dpt.</h2>
           <div className="options-container">
             <div className="options-title-btns">Buttons Options</div>
             <div className="spacerY" />
