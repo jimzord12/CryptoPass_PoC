@@ -1,8 +1,7 @@
 import axios from "axios";
 import { ethers } from "ethers";
-import { saveAs } from "file-saver";
 import jsQR from "jsqr";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 // import htmlToImage from "html-to-image";
 
@@ -24,10 +23,15 @@ import StatusDot from "./StatusDot";
 const WS_URL = "http://localhost:8787/";
 
 interface accessTokenType {
+  At: accessTokenDetails;
+  success: boolean;
+}
+
+type accessTokenDetails = {
   atId: number;
   role: string;
   expDate: number; // UNIX Timestamp
-}
+};
 
 // const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
 const provider = new ethers.BrowserProvider(window.ethereum);
@@ -56,9 +60,11 @@ const accessToken = new ethers.Contract(
 function App() {
   const web3ButtonContainerRef = useRef<HTMLDivElement | null>(null);
   const qrRef = useRef<HTMLDivElement | null>(null);
+  const qrCodeRef = useRef<HTMLInputElement | null>(null);
 
   const [decodedData, setDecodedData] = useState(null);
   const canvasRef = useRef(null);
+  // const [loading, setLoading] = useState(false);
 
   // const [hasRun, setHasRun] = useState(false); // Step 1: Introduce the hasRun state variable
   // const [web3ButtonInstance, setWeb3ButtonInstance] =
@@ -108,13 +114,13 @@ function App() {
   const [currentQRToken, setCurrentQRToken] = useState<accessTokenType | null>(
     null
   );
-  const [output, setOutput] = useState<string | null>(null);
+  const [output, setOutput] = useState<string | null | ReactNode>(null);
 
-  const getUserAddress = async () => {
-    const signer = await provider.getSigner();
-    console.log("👨‍💻 User Account:", await signer.getAddress());
-    setUserAddress(await signer.getAddress());
-  };
+  // const getUserAddress = async () => {
+  //   const signer = await provider.getSigner();
+  //   console.log("👨‍💻 User Account:", await signer.getAddress());
+  //   setUserAddress(await signer.getAddress());
+  // };
 
   useEffect(() => {
     // console.log("1. 🍰 Use Effect has run");
@@ -125,11 +131,11 @@ function App() {
     checkWebServerStatus();
     checkWebServerAuthStatus();
 
-    getUserAddress();
+    // getUserAddress();
 
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
-        setUserAddress(accounts[0]);
+        // setUserAddress(accounts[0]);
       });
     }
 
@@ -156,6 +162,7 @@ function App() {
           container.classList.add("wobble-hor-bottom");
           setBtnIsActive(true);
           setLoggedIn(true);
+          setUserAddress("Enter Address here...");
         },
         onFailure: () => {
           console.log("Login failed.");
@@ -174,6 +181,12 @@ function App() {
       console.log("👉 A New Web3 Btn was Created!");
     }
   }, [web3AuthAPI, roleAPI, chainId, roleType, userAddress]);
+
+  useEffect(() => {
+    if (qrCodeRef.current) {
+      qrCodeRef.current.value = String(userQRtokeId);
+    }
+  }, [userQRtokeId]);
 
   const checkHardhatStatus = async () => {
     try {
@@ -263,26 +276,32 @@ function App() {
     console.log("Requesting SBT...");
     console.log("Provind Address: ", userAddress);
     console.log("Providing Role", userRole);
+    setOutput("pending");
     try {
       const enumifiedRole = roleType.indexOf(userRole);
       const response = await axios.post(WS_URL + "createSBT", {
         userAddress,
         enumifiedRole,
       });
-      setOutput("SoulBound Token Successfully Created!");
+      setOutput("✅ SoulBound Token Successfully Created!");
       if (!response.data.success) throw new Error("handleRequestSBT");
     } catch (error: any) {
       console.log("Error [Handler]: ", error);
+
       if (
         error.response.data.error.reason.includes(
           "CryptoPass: You already possess a SBT and you may only have one"
         )
       )
         setOutput(error.response.data.error.reason);
+    } finally {
+      // setLoading(false);
     }
   };
 
   const handleCheckForSBT = async () => {
+    setOutput("pending");
+
     try {
       const response = await axios.post(WS_URL + "retrieve-role", {
         address: userAddress,
@@ -293,11 +312,14 @@ function App() {
         throw new Error("handleCheckForSBT");
       setOutput(`The User's Role is: [${roleType[response.data.userRole]}]`);
     } catch (error) {
-      console.log("Error [Handler]: ", error);
+      console.log("⛔ Error [handleCheckForSBT - Handler]: ", error);
+      setOutput("Something Went Wrong. You probably do NOT have a SBT");
     }
   };
 
   const handleRequestQR = async () => {
+    setOutput("pending");
+
     try {
       const response = await axios.post<accessTokenType>(
         WS_URL + "qrCodeCreator",
@@ -309,13 +331,27 @@ function App() {
       setCurrentQRToken(response.data);
       console.log("🍰 The Access Token Data: ", response.data);
       setOutput(
-        `The QR Access Code was created Successfully!: ${JSON.stringify(
-          response.data
-        )}`
+        <div style={{ textAlign: "left" }}>
+          The QR Access Code was created Successfully!:
+          <br />
+          {`  - Access Token:`}
+          <br />
+          {`  - ID: ${response.data.At.atId}`}
+          <br />
+          {`  - Role: ${response.data.At.role}`}
+          <br />
+          {`  - Exp Date: after the ${response.data.At.expDate}th block is
+          mined`}
+        </div>
       );
+      setUserQRtokeId(response.data.At.atId);
       // if (!response.data.success) throw new Error("handleRequestSBT");
     } catch (error) {
       console.log("Error [Handler]: ", error);
+      setOutput(
+        "Something Went Wrong. You may already have an Active Access Token!"
+      );
+
       // setOutput("The QR Access Code was created Successfully!");
     }
   };
@@ -341,35 +377,37 @@ function App() {
       });
       // if (!response.data.success) throw new Error("handleRequestSBT");
       setOutput("The QR Access Code was USED Successfully!");
+      setCurrentQRToken(null);
+      setDecodedData(null);
     } catch (error) {
-      console.log("Error [Handler]: ", error);
-      setOutput("Something went wrong 😬");
+      console.log("⛔ Error [handleUseQR - Handler]: ", error);
+      setOutput("Something went wrong, Ensure you have Scanned the QR Code");
     }
   };
 
-  const saveQRCode = () => {
-    if (qrRef.current) {
-      const svg = qrRef.current.querySelector("svg");
-      if (svg) {
-        const serializer = new XMLSerializer();
-        const source = serializer.serializeToString(svg);
-        const img = new Image();
-        img.src = "data:image/svg+xml;base64," + btoa(source);
-        img.onload = function () {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d")!;
-          ctx.drawImage(img, 0, 0);
-          canvas.toBlob((blob) => {
-            saveAs(blob, "qrcode.png");
-          });
-        };
-      } else {
-        throw new Error("SVG is null");
-      }
-    }
-  };
+  // const saveQRCode = () => {
+  //   if (qrRef.current) {
+  //     const svg = qrRef.current.querySelector("svg");
+  //     if (svg) {
+  //       const serializer = new XMLSerializer();
+  //       const source = serializer.serializeToString(svg);
+  //       const img = new Image();
+  //       img.src = "data:image/svg+xml;base64," + btoa(source);
+  //       img.onload = function () {
+  //         const canvas = document.createElement("canvas");
+  //         canvas.width = img.width;
+  //         canvas.height = img.height;
+  //         const ctx = canvas.getContext("2d")!;
+  //         ctx.drawImage(img, 0, 0);
+  //         canvas.toBlob((blob) => {
+  //           saveAs(blob, "qrcode.png");
+  //         });
+  //       };
+  //     } else {
+  //       throw new Error("SVG is null");
+  //     }
+  //   }
+  // };
 
   return (
     <>
@@ -382,7 +420,8 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className="center-it">
+      <div className="center-it section-01">
+        <h2>Step #1</h2>
         <div className="status-container">
           {/* <StatusDot status={walletConnection} label="Wallet Connection" /> */}
           <StatusDot status={hardhatStatus} label="Hardhat Local Blockchain" />
@@ -395,81 +434,119 @@ function App() {
             label="AccessToken Contract"
           />
           <StatusDot status={webServerStatus} label="Web Server Status" />
-          <StatusDot status={webServerAuthStatus} label="Web Server has Auth" />
+          <StatusDot
+            status={webServerAuthStatus}
+            label="Web Server has Auth (Select WS Address from Metamask)"
+          />
           <StatusDot status={loggedIn} label="Logged In" />
         </div>
       </div>
+      <div className="divider" />
       <div className="card">
-        <div className="options-container">
-          <div className="options-title">
-            Web3 Button <br />
-            Options
-          </div>
-          <div className="spacerY"></div>
-          <div className="card-options">
-            <div className="options-item">
-              <label>Web3 Auth - WS Endpoint:</label>
-              <input
-                value={web3AuthAPI}
-                onChange={(e) => setWeb3AuthAPI(e.target.value)}
-              />
+        <div className="section-02">
+          <h2>Step #2 - Secretary Dpt.</h2>
+          <div className="options-container">
+            <div className="options-title">
+              Web3 Button <br />
+              Options
             </div>
-            <div className="options-item">
-              <label>Role API:</label>
-              <input
-                value={roleAPI}
-                onChange={(e) => setRoleAPI(e.target.value)}
-              />
-            </div>
-            <div className="options-item">
-              <label>Chain ID:</label>
-              <input
-                type="number"
-                value={chainId}
-                onChange={(e) => setChainId(Number(e.target.value))}
-              />
-            </div>
-            <div className="options-item">
-              <label>Role Types:</label>
-              <input
-                type="text"
-                value={roleType}
-                onChange={(e) => setRoleType(Array.from(e.target.value))}
-              />
-            </div>
-          </div>
-        </div>
-        <div ref={web3ButtonContainerRef}></div>
-        <div className="spacerY"></div>
-        <div className="options-container">
-          <div className="options-title-btns">Buttons Options</div>
-          <div className="spacerY"></div>
-          <div className="card-options">
-            <div className="options-item">
-              <label>Address:</label>
-              <input
-                value={userAddress ?? "soon your address..."}
-                readOnly
-                onChange={() => getUserAddress()}
-              />
-            </div>
-            <div className="options-item">
-              <label>Role:</label>
-              <input
-                value={userRole}
-                onChange={(e) => setUserRole(e.target.value)}
-              />
-            </div>
-            <div className="options-item">
-              <label>QR Token ID:</label>
-              <input
-                type="number"
-                value={userQRtokeId ?? -1}
-                onChange={(e) => setUserQRtokeId(Number(e.target.value))}
-              />
+            <div className="spacerY" />
+            <div className="card-options">
+              <div className="options-item">
+                <label>Web3 Auth - WS Endpoint:</label>
+                <input
+                  value={web3AuthAPI}
+                  onChange={(e) => setWeb3AuthAPI(e.target.value)}
+                />
+              </div>
+              <div className="options-item">
+                <label>Role API:</label>
+                <input
+                  value={roleAPI}
+                  onChange={(e) => setRoleAPI(e.target.value)}
+                />
+              </div>
+              <div className="options-item">
+                <label>Chain ID:</label>
+                <input
+                  type="number"
+                  value={chainId}
+                  onChange={(e) => setChainId(Number(e.target.value))}
+                />
+              </div>
+              <div className="options-item">
+                <label>Role Types:</label>
+                <input
+                  type="text"
+                  value={roleType}
+                  onChange={(e) => setRoleType(Array.from(e.target.value))}
+                />
+              </div>
             </div>
           </div>
         </div>
+        <div ref={web3ButtonContainerRef} />
+        <div className="divider"></div>
+        <div className="section-03">
+          <h2>Step #3</h2>
+          <div className="options-container">
+            <div className="options-title-btns">Buttons Options</div>
+            <div className="spacerY" />
+
+            <div className="card-options">
+              <div className="options-item">
+                <label>Address:</label>
+                {userAddress !== null ? (
+                  <input
+                    value={userAddress ?? "ERROR"}
+                    // readOnly
+                    // onChange={() => getUserAddress()}
+                    onChange={(e) => setUserAddress(e.target.value)}
+                  />
+                ) : (
+                  <input
+                    value={"after login, enter user's address..."}
+                    readOnly
+                    // onChange={() => getUserAddress()}
+                    onChange={(e) => setUserAddress(e.target.value)}
+                  />
+                )}
+              </div>
+              <div className="options-item">
+                <label>Role:</label>
+                <select
+                  value={userRole}
+                  onChange={(e) => setUserRole(e.target.value)}
+                >
+                  <option value="Student">Student</option>
+                  <option value="Professor">Professor</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div className="options-item">
+                <label>QR Token ID:</label>
+                {userQRtokeId === null ? (
+                  <input
+                    type="text"
+                    value={"no token yet..."}
+                    readOnly
+                    // onChange={(e) => setUserQRtokeId(Number(e.target.value))}
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    value={userQRtokeId}
+                    readOnly
+                    ref={qrCodeRef}
+                    // onChange={(e) => setUserQRtokeId(Number(e.target.value))}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="spacerY-24"></div>
         <div style={{ display: "flex", gap: 16 }}>
           <MyButton
@@ -492,60 +569,99 @@ function App() {
             label="Get Access Token Data"
             isDisabled={btnIsActive}
           /> */}
-          <MyButton
-            clickHandler={handleUseQR}
-            label="Use Access Token"
-            isDisabled={btnIsActive}
-          />
         </div>
         <div className="spacerY-24" />
-        <>
-          {output !== null && (
-            <>
-              <div
-                style={{
-                  border: "#dbe6e9aa solid 2px",
-                  backgroundColor: "#61229dba",
-                  borderRadius: 16,
-                  padding: "8px 24px ",
-                }}
-              >
-                <h3>{output}</h3>
-              </div>
-              <div className="spacerY" />
-            </>
-          )}
-        </>
+        <div className="divider" />
+        <div className="section-04">
+          <>
+            {output !== null && (
+              <>
+                <h2>Step #4</h2>
+
+                {output === "pending" ? (
+                  <>
+                    <div
+                      style={{
+                        border: "#dbe6e9aa solid 2px",
+                        backgroundColor: "#61229dba",
+                        borderRadius: 16,
+                        padding: "8px 24px ",
+                      }}
+                    >
+                      <h3>{"Submiting Transaction..."}</h3>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        border: "#dbe6e9aa solid 2px",
+                        backgroundColor: "#61229dba",
+                        borderRadius: 16,
+                        padding: "8px 24px ",
+                      }}
+                    >
+                      <h3>{output}</h3>
+                    </div>
+                  </>
+                )}
+                {/* <div className="spacerY" /> */}
+              </>
+            )}
+          </>
+        </div>
+
         <>
           {currentQRToken !== null && (
-            <div
-              style={{
-                backgroundColor: "gray",
-                padding: 24,
-                border: "white solid 2px",
-                borderRadius: 12,
-              }}
-            >
-              <div id="qr-code-container" ref={qrRef}>
-                <QRCode size={384} value={JSON.stringify(currentQRToken)} />
+            <>
+              <div className="divider" />
+              <h2>Step #5</h2>
+              <div className="spacerY-24" />
+              <div
+                style={{
+                  backgroundColor: "gray",
+                  padding: 24,
+                  border: "white solid 2px",
+                  borderRadius: 12,
+                }}
+              >
+                <div id="qr-code-container" ref={qrRef}>
+                  <QRCode size={384} value={JSON.stringify(currentQRToken)} />
+                </div>
               </div>
-            </div>
+            </>
           )}
         </>
 
         <div className="spacerY-24" />
         <>
-          {currentQRToken !== null && <p>{JSON.stringify(currentQRToken)}</p>}
+          {currentQRToken !== null && (
+            <h2 style={{ color: "whitesmoke" }}>QR Code Generated! </h2>
+          )}
+          {decodedData !== null && (
+            <>
+              {decodedData && (
+                <h2 style={{ color: "green" }}>
+                  QR Code Received Successfully!{" "}
+                </h2>
+              )}
+              <MyButton
+                clickHandler={handleUseQR}
+                label="Use Access Token"
+                isDisabled={btnIsActive}
+              />
+            </>
+          )}
         </>
         <div className="spacerY-24" />
         <>
           {currentQRToken !== null && (
             <>
-              <MyButton
+              {/* <MyButton
                 clickHandler={saveQRCode}
                 label="Save QR Code Image"
                 isDisabled={currentQRToken === null ? true : false}
-              />
+              /> */}
               <div className="spacerY-24" />
               <QRDecoder
                 canvasRef={canvasRef}
@@ -556,110 +672,114 @@ function App() {
           )}
         </>
       </div>
-      <RunStep
-        stepNumber={1}
-        textPart="Install Frontend Deps"
-        codePart="cryptopass_frontend\vite-ui-test"
-      />
-      <RunStep
-        stepNumber={2}
-        textPart="Run the Vite, the Frontend"
-        codePart="npm run dev"
-      />
-      <RunStep
-        stepNumber={3}
-        textPart="Start the Local Blockchain, new terminal and"
-        codePart="PATH: cryptopass_smartContracts | npx hardhat node"
-      />
-      <RunStep
-        stepNumber={4}
-        textPart="Deploy the Contracts + Give ETH to WS"
-        codePart="npx hardhat run --network localhost scripts/actions/scriptRunner.ts"
-      />
-      <RunStep
-        stepNumber={5}
-        textPart="A CLI Menu will appear"
-        codePart="enter 13 and press 'Enter'"
-      />
-      <RunStep
-        stepNumber={6}
-        textPart="Create new terminal, Navigate to"
-        codePart="cryptopass_ws"
-      />
-      <RunStep
-        stepNumber={7}
-        textPart="There simply run"
-        codePart="npm start"
-      />
-      <RunStep
-        stepNumber={8}
-        textPart="You should see this"
-        codePart="Balance of The WS Wallet is: 250.0 ETH
+
+      {/* THE STEPS */}
+      {/* <>
+        <RunStep
+          stepNumber={1}
+          textPart="Install Frontend Deps"
+          codePart="cryptopass_frontend\vite-ui-test"
+        />
+        <RunStep
+          stepNumber={2}
+          textPart="Run the Vite, the Frontend"
+          codePart="npm run dev"
+        />
+        <RunStep
+          stepNumber={3}
+          textPart="Start the Local Blockchain, new terminal and"
+          codePart="PATH: cryptopass_smartContracts | npx hardhat node"
+        />
+        <RunStep
+          stepNumber={4}
+          textPart="Deploy the Contracts + Give ETH to WS"
+          codePart="npx hardhat run --network localhost scripts/actions/scriptRunner.ts"
+        />
+        <RunStep
+          stepNumber={5}
+          textPart="A CLI Menu will appear"
+          codePart="enter 13 and press 'Enter'"
+        />
+        <RunStep
+          stepNumber={6}
+          textPart="Create new terminal, Navigate to"
+          codePart="cryptopass_ws"
+        />
+        <RunStep
+          stepNumber={7}
+          textPart="There simply run"
+          codePart="npm start"
+        />
+        <RunStep
+          stepNumber={8}
+          textPart="You should see this"
+          codePart="Balance of The WS Wallet is: 250.0 ETH
 [GOOD]: WS is Authorized by the Contract!"
-      />
-      <RunStep
-        stepNumber={9}
-        textPart="Now Go back to the Frontend"
-        codePart="open Chrome..."
-      />
-      <RunStep
-        stepNumber={10}
-        textPart="Refresh the page (http://localhost:5173/), and all the dots should be green"
-        codePart="expect the last"
-      />
-      <RunStep
-        stepNumber={11}
-        textPart="Log in to Metamask"
-        codePart="npm start"
-      />
-      <RunStep
-        stepNumber={12}
-        textPart="You should have Custom Network for Hardhat"
-        codePart="RPC: http://127.0.0.1:8545/ | Chain ID: 1337"
-      />
-      <RunStep
-        stepNumber={13}
-        textPart="In the Frontend, press the 'Web3 Auth'"
-        codePart="npm start"
-      />
-      <RunStep
-        stepNumber={14}
-        textPart="This should make the Last red dot turn"
-        codePart="green"
-      />
-      <RunStep
-        stepNumber={15}
-        textPart="The request SBT, should display after pressing"
-        codePart="That you already have one"
-      />
-      <RunStep
-        stepNumber={16}
-        textPart="Press the 'Check SBT' to see your Access Level"
-        codePart="Should be Admin"
-      />
-      <RunStep
-        stepNumber={17}
-        textPart="By pressing the 'Request QR Code', A QR code generated from your SBT"
-        codePart="will be diplayed"
-      />
-      <RunStep
-        stepNumber={18}
-        textPart="Use your phone to capture the QR Code, and show the Image to your web cam"
-        codePart="Once it shakes, it means it got it"
-      />{" "}
-      <RunStep
-        stepNumber={19}
-        textPart="Now, press the 'Use Access Token', and the Access token is burned..."
-        codePart="for ever"
-      />{" "}
-      <RunStep
-        stepNumber={20}
-        textPart="Of course you can repeat this process for"
-        codePart="ever... and ever..."
-      />
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+        />
+        <RunStep
+          stepNumber={9}
+          textPart="Now Go back to the Frontend"
+          codePart="open Chrome..."
+        />
+        <RunStep
+          stepNumber={10}
+          textPart="Refresh the page (http://localhost:5173/), and all the dots should be green"
+          codePart="expect the last"
+        />
+        <RunStep
+          stepNumber={11}
+          textPart="Log in to Metamask"
+          codePart="npm start"
+        />
+        <RunStep
+          stepNumber={12}
+          textPart="You should have Custom Network for Hardhat"
+          codePart="RPC: http://127.0.0.1:8545/ | Chain ID: 1337"
+        />
+        <RunStep
+          stepNumber={13}
+          textPart="In the Frontend, press the 'Web3 Auth'"
+          codePart="npm start"
+        />
+        <RunStep
+          stepNumber={14}
+          textPart="This should make the Last red dot turn"
+          codePart="green"
+        />
+        <RunStep
+          stepNumber={15}
+          textPart="The request SBT, should display after pressing"
+          codePart="That you already have one"
+        />
+        <RunStep
+          stepNumber={16}
+          textPart="Press the 'Check SBT' to see your Access Level"
+          codePart="Should be Admin"
+        />
+        <RunStep
+          stepNumber={17}
+          textPart="By pressing the 'Request QR Code', A QR code generated from your SBT"
+          codePart="will be diplayed"
+        />
+        <RunStep
+          stepNumber={18}
+          textPart="Use your phone to capture the QR Code, and show the Image to your web cam"
+          codePart="Once it shakes, it means it got it"
+        />{" "}
+        <RunStep
+          stepNumber={19}
+          textPart="Now, press the 'Use Access Token', and the Access token is burned..."
+          codePart="for ever"
+        />{" "}
+        <RunStep
+          stepNumber={20}
+          textPart="Of course you can repeat this process for"
+          codePart="ever... and ever..."
+        />
+        <p className="read-the-docs">
+          Click on the Vite and React logos to learn more
+        </p>
+      </> */}
     </>
   );
 }
@@ -701,6 +821,13 @@ function QRDecoder({ canvasRef, setDecodedData, decodedData }: any) {
   const checkForQRCode = () => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+    console.log();
+    if (
+      (!videoRef.current as any) instanceof HTMLVideoElement ||
+      videoRef.current === null ||
+      ctx === null
+    )
+      return;
     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(imageData.data, imageData.width, imageData.height);
@@ -774,7 +901,7 @@ function QRDecoder({ canvasRef, setDecodedData, decodedData }: any) {
     // </div>
     <div>
       <video ref={videoRef} width={400} height={400}></video>
-      {decodedData && <div>{JSON.stringify(decodedData)}</div>}
+      <h2>Use this Camera to scan the QR</h2>
     </div>
   );
 }

@@ -17,7 +17,8 @@ function MyButton({ label, isDisabled, clickHandler }: props) {
   return (
     <AwesomeButton
       //   cssModule={AwesomeButtonStyles}
-      type="primary"
+      type=""
+      style={{ color: !isActive ? "red" : "limegreen" }}
       disabled={!isActive}
       onPress={() => {
         console.log("🎁 Request SBT Handler");
