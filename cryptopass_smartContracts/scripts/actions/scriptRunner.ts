@@ -1,25 +1,20 @@
 import * as readline from "readline";
 
+import { getTokenData, getTokenId } from "./accesstoken/readOnly";
 import { mintToken, useToken } from "./accesstoken/stateAltering";
-import {
-  balanceOf as accessBalance,
-  getTokenId,
-  getTokenData,
-} from "./accesstoken/readOnly";
 
-import { authorizeAddress, createSBT } from "./cryptopass/stateAltering";
 import {
-  balanceOf,
   _authPersonal,
-  getUserRole,
-  hasSBT_user,
+  balanceOf,
   hasSBT_caller,
+  hasSBT_user,
   showMsgSender,
 } from "./cryptopass/readOnly";
+import { authorizeAddress, createSBT } from "./cryptopass/stateAltering";
 
 import { main } from "../myDeploys";
 
-import { signers, SignerValue } from "../../constants/signers";
+import { SignerValue } from "../../constants/signers";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -176,7 +171,7 @@ rl.question(
     console.log("---------------------------------------------------------");
     console.log("1. deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
     console.log("2. manager: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
-    console.log("3. web server: 0xA833D22FeFB0DE9f2B4847c5e5Fe0Cc4542871B3");
+    console.log(`3. web server: ${process.env.WS_ADDRESS}`);
     console.log("4. simplerUser: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC");
     console.log("---------------------------------------------------------");
     console.log();

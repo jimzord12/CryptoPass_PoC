@@ -1,5 +1,4 @@
-import { ethers } from "hardhat";
-import hre from "hardhat";
+import hre, { ethers } from "hardhat";
 
 // import { promises as fs } from "fs";
 // import path from "path";
@@ -39,6 +38,24 @@ export async function main() {
       "The WS_ADDRESS environment variable is not a valid Ethereum address!"
     );
   } else {
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
+    console.log(
+      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    );
     // Giving Hono Web Server Auth + SBT
     await authorizeAddress(ws_address, "deployer");
     await createSBT(ws_address, 4, "deployer");
@@ -67,47 +84,3 @@ export async function main() {
   console.log(`5. The Network's name: ${hre.network.name}`);
   console.log(`6. The Network's provider: ${hre.network.provider}`);
 }
-
-// async function storeContractData(
-//   cryptoPassAddr: string,
-//   accessTokenAddr: string
-// ): Promise<any> {
-//   const CryptoPassArtifact = await hre.artifacts.readArtifact("CryptoPass");
-//   const AccessTokenArtifact = await hre.artifacts.readArtifact("AccessToken");
-
-//   const data = {
-//     cryptopass: {
-//       abi: CryptoPassArtifact.abi,
-//       source: CryptoPassArtifact.sourceName,
-//       address: cryptoPassAddr,
-//     },
-//     accesstoken: {
-//       abi: AccessTokenArtifact.abi,
-//       source: AccessTokenArtifact.sourceName,
-//       address: accessTokenAddr,
-//     },
-//   };
-
-//   // Using the asynchronous writeFile method from fs.promises
-//   try {
-//     await fs.writeFile(
-//       path.join(__dirname, "..", "contractData.json"),
-//       JSON.stringify(data, null, 2)
-//     );
-
-//     // Import the JSON file. Using dynamic imports with await
-//     const jsonFile = await import(
-//       path.join(__dirname, "..", "contractData.json")
-//     );
-//     return jsonFile.default;
-//   } catch (error) {
-//     throw new Error("Failed to write and read the contract data.");
-//   }
-// }
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-// main().catch((error) => {
-//   console.error(error);
-//   process.exitCode = 1;
-// });

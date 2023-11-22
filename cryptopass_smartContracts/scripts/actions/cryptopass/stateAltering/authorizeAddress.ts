@@ -18,7 +18,7 @@ export async function authorizeAddress(
     "| selectedSigner: ",
     selectedSigner
   );
-  contract.authorizeAccount(toAddress);
+  await contract.authorizeAccount(toAddress);
 }
 
 // authorizeAddress("0xA833D22FeFB0DE9f2B4847c5e5Fe0Cc4542871B3");

@@ -1,8 +1,10 @@
-import IWeb3Button, { IWeb3ButtonOptions } from "./types/web3BtnInterface";
-import { SafeStyleProperties } from "./types/web3BtnInterface";
-import Toastify from "toastify-js";
 import axios from "axios";
 import { ethers } from "ethers";
+import Toastify from "toastify-js";
+import IWeb3Button, {
+  IWeb3ButtonOptions,
+  SafeStyleProperties,
+} from "./types/web3BtnInterface";
 
 import "toastify-js/src/toastify.css";
 
@@ -18,9 +20,10 @@ export class Web3Button implements IWeb3Button {
   private web3AuthAPI: string;
   private roleAPI: string;
   private rolesEnum: string[];
+  private accessLevel?: 0 | 1 | 2 | 3 | 4;
   // private contractAddr: string;
   private chainId: number;
-  private account?: string | null = null;
+  private account: string | null = null;
   // private contract?: any = null;
   // private abi?: any;
   private styles?: SafeStyleProperties;
@@ -54,6 +57,7 @@ export class Web3Button implements IWeb3Button {
     //   this._notImplementedError("contractAddr", "Property");
     this.chainId =
       options.chainId ?? this._notImplementedError("ChainId", "Property");
+    this.accessLevel = options.accessLevel;
     // this.abi =
     //   options.abi ??
     //   this._notImplementedError("Contrct ABI Required!", "Property");
@@ -68,6 +72,10 @@ export class Web3Button implements IWeb3Button {
 
   render(parentElement: HTMLElement) {
     parentElement.appendChild(this.button);
+    console.log(
+      "From Web3 Button: The Access is: ",
+      this.rolesEnum[this.accessLevel!]
+    );
   }
 
   getButtonElement(): HTMLButtonElement {
@@ -139,14 +147,30 @@ export class Web3Button implements IWeb3Button {
           // Calling SBT contract
 
           try {
-            this.role = await this._getRoleFromWS();
+            const { parsedRole, roleNumber } = await this._getRoleFromWS();
+            this.role = parsedRole;
+            if (roleNumber >= this.accessLevel!) {
+              console.log(
+                "🧪 6.1 Your Role is passes the Access Requirements!"
+              );
+              this.onSuccess(this.role!);
+            } else {
+              console.log(
+                "⛔ Your Access Level is does NOT meet the Requirements!"
+              );
+              this._showErrorNotification(
+                `Your Access Level is does NOT meet the Requirements! \nYou need at least a Role of: [${
+                  this.rolesEnum[this.accessLevel!]
+                }]\n Your Access level is: [${parsedRole}]`
+              );
+            }
           } catch (error) {
             console.log("ERRRRROR: ", error);
             this._showErrorNotification("Server Error, please try again later");
             return;
           }
           if (
-            this.rolesEnum.includes(this.role ?? "") &&
+            this.rolesEnum.includes(this.role ?? "None") &&
             this.role !== "None"
           ) {
             console.log(
@@ -197,7 +221,7 @@ export class Web3Button implements IWeb3Button {
     const parsedRole: string = Web3Button.roles[response.data.userRole];
     console.log("💩 6.3 Your Role is (as String): ", parsedRole);
     // this.role = parsedRole;
-    return parsedRole;
+    return { roleNumber: response.data.userRole, parsedRole };
   }
 
   private _showErrorNotification(message: string) {

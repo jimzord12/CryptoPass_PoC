@@ -37,21 +37,27 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
 
     constructor() ERC721("CryptoPass", "CPT") {
         address owner = owner();
-        address remix_addr_02 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2; // Testing
-        address ws_addr = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db; // Change after testing
+        // address remix_addr_02 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2; // Testing
+        // address ws_addr = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC; // Change after testing
 
+        // We have some specific addresses that are authorized to create SBTs
         _authPersonal[owner] = true;
-        _authPersonal[ws_addr] = true;
-        _authPersonal[remix_addr_02] = true; // Testing
+        // _authPersonal[ws_addr] = true;
+        // _authPersonal[remix_addr_02] = true; // Testing
 
-        createUserRole(owner, Types.Role.Admin); // Making the Owner an Admin
+        // Making the Owner an Admin, because only Admins can mint SBTs
+        createUserRole(owner, Types.Role.Admin);
+
+        // We create a SBT for the Owner,
+        // Its the some as calling "createSBT" but we bypass some checks
         safeMint(owner);
-        // The Authorized Account that can mint SBTs
 
-        createSBT(ws_addr, Types.Role.Admin); // Makes the WS an Admin and Creates a SBT for it
-        // createSBT(owner, Types.Role.Admin);     // Makes the Owner an Admin and Creates a SBT for it
+        // Makes the WS an Admin and Creates a SBT for it
+        // createSBT(ws_addr, Types.Role.Admin);
     }
 
+    // This modifier is used to check if the user already has a SBT AND
+    // does not allow the creation of a 2nd one
     modifier onlyOne(address to) {
         require(
             balanceOf(to) == 0,
@@ -60,14 +66,17 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         _; // This is a placeholder for the code of the modified function
     }
 
+    // This modifier is used to check if the user is authorized to create a SBT
     modifier onlyAuthAcc() {
         require(
             _authPersonal[msg.sender],
             "CryptoPass: You are NOT Authorized to create an SBT"
         );
-        _; // This is a placeholder for the code of the modified function
+        _;
     }
 
+    // This restricts the ability to transfer an SBT
+    // It is an internal function that is called by the ERC721 and here we override it
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -81,7 +90,8 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    // Creates SBT Tokens | This is done by Department's Secretary Personal
+    // This function is used to create an NFT
+    // The NFT becomes an SBT because of the resitrictions we have set above
     function safeMint(address to) private onlyOne(to) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -95,41 +105,42 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         return super.supportsInterface(interfaceId);
     }
 
-    // Cancel SBT
+    // Cancel/Destroy an SBT
     function _burn(
         uint256 tokenId
     ) internal override(ERC721, ERC721URIStorage) onlyAuthAcc {
         super._burn(tokenId);
     }
 
+    // The following functions are overrides required by Solidity.
     function tokenURI(
         uint256 tokenId
     ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
+    // The following functions are overrides required by Solidity.
     function balanceOf(
         address _SBTowner
     ) public view override(ERC721, IERC721) onlyAuthAcc returns (uint256) {
         return super.balanceOf(_SBTowner);
     }
 
-    // Calls the "getRole" from CPRoles.sol to obtain the Role of a specific user
+    // Calls the "getRole" from CPRolesManager.sol to obtain the Role of a specific user
     function getUserRole(
         address caller
     ) public view onlyAuthAcc returns (Types.Role) {
         return getRole(caller);
     }
 
-    // Calls the "getRole" from CPRoles.sol to obtain self's Role
-    /*
-    How to handle this in the WS:
-        const roleInt = await contract.methods.getRole(userAddress).call();
-        const roles = ["None", "Student", "Professor", "Staff", "Admin"];
-        const roleStr = roles[roleInt];
-        console.log(roleStr); // Will print the string representation of the role
-    */
+    // Gives a Role to a specific user
+    function createUserRole(address userAddr, Types.Role role) private {
+        createRole(userAddr, role);
+    }
 
+    // >>> Publicly Available Functions <<<
+
+    // Changes the Role of a specific user (from 'Student' to 'Professor' for example)
     function changeUserRole(
         address userAddr,
         Types.Role role
@@ -137,10 +148,13 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         changeRole(userAddr, role);
     }
 
-    function createUserRole(address userAddr, Types.Role role) private {
-        createRole(userAddr, role);
+    // This function is used to authorize a specific address to create SBTs
+    function authorizeAccount(address _addr) external onlyOwner {
+        _authPersonal[_addr] = true;
     }
 
+    // This is the most important function of the contract!
+    // It creates a SBT for a specific user and assigns a Role to it
     function createSBT(address _userAddr, Types.Role _role) public onlyAuthAcc {
         require(
             _userAddr != address(0),
@@ -154,20 +168,27 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         createUserRole(_userAddr, _role); // Assign a Role to user
     }
 
-    function authorizeAccount(address _addr) external onlyOwner {
-        _authPersonal[_addr] = true;
-    }
-
+    // This function checks if a specific User has a SBT
     function hasSBTuser(address _userAddr) external view returns (bool result) {
         return balanceOf(_userAddr) > 0;
     }
 
-    // Publicly Available Functions
+    // This function checks if the msg.sender has a SBT
     function hasSBT() external view returns (bool result) {
         return balanceOf(tx.origin) > 0;
     }
 
+    // This function is used for Testing purposes
     function showMsgSender() external view returns (address result) {
         return msg.sender;
     }
+
+    // Calls the "getRole" from CPRoles.sol to obtain self's Role
+    /*
+    How to handle this in the WS:
+        const roleInt = await contract.methods.getRole(userAddress).call();
+        const roles = ["None", "Student", "Professor", "Staff", "Admin"];
+        const roleStr = roles[roleInt];
+        console.log(roleStr); // Will print the string representation of the role
+    */
 }

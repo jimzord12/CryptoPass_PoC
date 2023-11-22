@@ -9,6 +9,7 @@ export interface IWeb3ButtonOptions {
 
   chainId: number;
   account?: string | null;
+  accessLevel: 0 | 1 | 2 | 3 | 4;
   // contractAddr: string;
   // abi: any;
   styles?: SafeStyleProperties;

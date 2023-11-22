@@ -110,7 +110,7 @@ function App() {
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>("Student");
   const [userQRtokeId, setUserQRtokeId] = useState<number | null>(null);
-
+  const [userAccessLevel, setUserAccessLevel] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [currentQRToken, setCurrentQRToken] = useState<accessTokenType | null>(
     null
   );
@@ -162,7 +162,7 @@ function App() {
           container.classList.add("wobble-hor-bottom");
           setBtnIsActive(true);
           setLoggedIn(true);
-          setUserAddress("Enter Address here...");
+          setUserAddress("");
         },
         onFailure: () => {
           console.log("Login failed.");
@@ -174,13 +174,14 @@ function App() {
         roleAPI: roleAPI,
         rolesEnum: roleType,
         chainId: chainId,
+        accessLevel: userAccessLevel,
         // contractAddr: import.meta.env.VITE_SBT_CONTRACT_ADDRESS!,
         // abi: abi,
       });
-      web3Button.render(web3ButtonContainerRef.current);
+      web3Button.render(container);
       console.log("👉 A New Web3 Btn was Created!");
     }
-  }, [web3AuthAPI, roleAPI, chainId, roleType, userAddress]);
+  }, [web3AuthAPI, roleAPI, chainId, roleType, userAddress, userAccessLevel]);
 
   useEffect(() => {
     if (qrCodeRef.current) {
@@ -284,16 +285,19 @@ function App() {
         enumifiedRole,
       });
       setOutput("✅ SoulBound Token Successfully Created!");
-      if (!response.data.success) throw new Error("handleRequestSBT");
+      // if (!response.data.success) throw new Error("handleRequestSBT");
     } catch (error: any) {
-      console.log("Error [Handler]: ", error);
+      console.log("Error [Handler - handleRequestSBT]: ", error);
 
       if (
-        error.response.data.error.reason.includes(
+        error.response?.data?.error?.reason.includes(
           "CryptoPass: You already possess a SBT and you may only have one"
         )
-      )
+      ) {
         setOutput(error.response.data.error.reason);
+      } else {
+        setOutput("Something went wrong, Ensure you have entered an Address");
+      }
     } finally {
       // setLoading(false);
     }
@@ -482,6 +486,18 @@ function App() {
                   onChange={(e) => setRoleType(Array.from(e.target.value))}
                 />
               </div>
+              <div className="options-item">
+                <label>Min Access Level:</label>
+                <select
+                  value={userAccessLevel}
+                  onChange={(e) => setUserAccessLevel(e.target.value)}
+                >
+                  <option value={1}>Student</option>
+                  <option value={2}>Professor</option>
+                  <option value={3}>Staff</option>
+                  <option value={4}>Admin</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -496,9 +512,10 @@ function App() {
             <div className="card-options">
               <div className="options-item">
                 <label>Address:</label>
-                {userAddress !== null ? (
+                {loggedIn === true ? (
                   <input
                     value={userAddress ?? "ERROR"}
+                    placeholder="Now enter user's address..."
                     // readOnly
                     // onChange={() => getUserAddress()}
                     onChange={(e) => setUserAddress(e.target.value)}
