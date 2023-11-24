@@ -151,9 +151,11 @@ export class Web3Button implements IWeb3Button {
             this.role = parsedRole;
             if (roleNumber >= this.accessLevel!) {
               console.log(
-                "🧪 6.1 Your Role is passes the Access Requirements!"
+                "🧪 6.1 Your Role is passes the Access Requirements!: ",
+                roleNumber,
+                " | ",
+                this.accessLevel
               );
-              this.onSuccess(this.role!);
             } else {
               console.log(
                 "⛔ Your Access Level is does NOT meet the Requirements!"
@@ -169,23 +171,26 @@ export class Web3Button implements IWeb3Button {
             this._showErrorNotification("Server Error, please try again later");
             return;
           }
-          if (
-            this.rolesEnum.includes(this.role ?? "None") &&
-            this.role !== "None"
-          ) {
-            console.log(
-              "✅🧪 7.1 You Possess an SBT, and have a Role! Nice 😋"
-            );
-            console.log("✅ 7.2 The onSuccess Function shall be executed:");
-            this.onSuccess(this.role!);
+          if (this.rolesEnum.includes(this.role ?? "None")) {
+            if (this.role !== "None") {
+              console.log(
+                "✅🧪 7.1 You Possess an SBT, and have a Role! Nice 😋"
+              );
+              console.log("✅ 7.2 The onSuccess Function shall be executed:");
+              this.onSuccess(this.role!);
+            } else {
+              // ⛔ You do NOT possess a SBT Token
+              this._showErrorNotification(
+                "😅 You probaly do NOT possess a SBT Token! Boomer..."
+              );
+              console.log("⛔ 7.3 The onFailure Function shall be executed:");
+              this.onFailure();
+              return;
+            }
           } else {
-            // ⛔ You do NOT possess a SBT Token
             this._showErrorNotification(
-              "😅 You probaly do NOT possess a SBT Token! Boomer..."
+              "⛔ Something went wrong, please try again later #1"
             );
-            console.log("⛔ 7.3 The onFailure Function shall be executed:");
-            this.onFailure();
-            return;
           }
         } else {
           // ⛔ Wallet points to Wrong Network

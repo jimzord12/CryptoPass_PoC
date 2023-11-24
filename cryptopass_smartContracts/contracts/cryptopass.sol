@@ -20,40 +20,25 @@ import "./CPRolesManager.sol";
 */
 
 contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
-    enum Role {
-        None,
-        Student,
-        Professor,
-        Staff,
-        Admin
-    }
-
     using Counters for Counters.Counter;
-    // using Types for Types.Role; // Custom Enum Type
 
     mapping(address => bool) public _authPersonal; // Make Private After testing
 
     Counters.Counter private _tokenIdCounter;
 
     constructor() ERC721("CryptoPass", "CPT") {
+        // Creating the Contract's Owner
         address owner = owner();
-        // address remix_addr_02 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2; // Testing
-        // address ws_addr = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC; // Change after testing
 
-        // We have some specific addresses that are authorized to create SBTs
+        // Making the Owner an Authorized Account
         _authPersonal[owner] = true;
-        // _authPersonal[ws_addr] = true;
-        // _authPersonal[remix_addr_02] = true; // Testing
 
-        // Making the Owner an Admin, because only Admins can mint SBTs
+        // Making the Owner an Admin
         createUserRole(owner, Types.Role.Admin);
 
-        // We create a SBT for the Owner,
+        // We mint a SBT for the Owner,
         // Its the some as calling "createSBT" but we bypass some checks
         safeMint(owner);
-
-        // Makes the WS an Admin and Creates a SBT for it
-        // createSBT(ws_addr, Types.Role.Admin);
     }
 
     // This modifier is used to check if the user already has a SBT AND
@@ -162,7 +147,7 @@ contract CryptoPass is ERC721, ERC721URIStorage, Ownable, RolesManager {
         );
         require(
             Types.Role.Admin == getUserRole(msg.sender),
-            "CryptoPass: Only the Owner can create Admins."
+            "CryptoPass: Only the Admins can create SBTs."
         );
         safeMint(_userAddr); // Create the SBT for the user
         createUserRole(_userAddr, _role); // Assign a Role to user

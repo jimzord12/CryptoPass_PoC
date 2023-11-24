@@ -33,11 +33,7 @@ type accessTokenDetails = {
   expDate: number; // UNIX Timestamp
 };
 
-// const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
 const provider = new ethers.BrowserProvider(window.ethereum);
-// const signer = provider.getSigner();
-
-// const signer = await provider.getSigner();
 
 const cryptoPassContractAddr = contractData.cryptopass.address;
 const accessTokenContractAddr = contractData.accesstoken.address;
@@ -64,11 +60,7 @@ function App() {
 
   const [decodedData, setDecodedData] = useState(null);
   const canvasRef = useRef(null);
-  // const [loading, setLoading] = useState(false);
 
-  // const [hasRun, setHasRun] = useState(false); // Step 1: Introduce the hasRun state variable
-  // const [web3ButtonInstance, setWeb3ButtonInstance] =
-  //   useState<Web3Button | null>(null);
   const [web3AuthAPI, setWeb3AuthAPI] = useState(
     import.meta.env.VITE_WS_URL + "/web3auth"
   );
@@ -86,14 +78,6 @@ function App() {
     "Admin",
   ]);
 
-  // type btnState = {
-  //   reqSBT: boolean | null;
-  //   checkSBT: boolean | null;
-  //   reqQR: boolean | null;
-  //   getTokenData: boolean | null;
-  //   useToken: boolean | null;
-  // };
-
   const [hardhatStatus, setHardhatStatus] = useState<boolean>(false);
   // const [walletConnection, setWalletConnection] = useState<boolean>(false);
   const [cryptoPassContractStatus, setCryptoPassContractStatus] =
@@ -110,28 +94,18 @@ function App() {
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>("Student");
   const [userQRtokeId, setUserQRtokeId] = useState<number | null>(null);
-  const [userAccessLevel, setUserAccessLevel] = useState<0 | 1 | 2 | 3 | 4>(0);
+  const [userAccessLevel, setUserAccessLevel] = useState<0 | 1 | 2 | 3 | 4>(1);
   const [currentQRToken, setCurrentQRToken] = useState<accessTokenType | null>(
     null
   );
   const [output, setOutput] = useState<string | null | ReactNode>(null);
 
-  // const getUserAddress = async () => {
-  //   const signer = await provider.getSigner();
-  //   console.log("👨‍💻 User Account:", await signer.getAddress());
-  //   setUserAddress(await signer.getAddress());
-  // };
-
   useEffect(() => {
-    // console.log("1. 🍰 Use Effect has run");
-    // console.log("2. 🍰 ", web3ButtonContainerRef.current);
     checkHardhatStatus();
     checkCryptoPassContractDeployment();
     checkAccessTokenContractDeployment();
     checkWebServerStatus();
     checkWebServerAuthStatus();
-
-    // getUserAddress();
 
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
@@ -139,12 +113,7 @@ function App() {
       });
     }
 
-    if (
-      // !web3ButtonContainerRef.current &&
-      web3ButtonContainerRef.current !== null
-    ) {
-      // console.log("3. 🍰 ", "AAAAAAAAAAAAAAAA");
-
+    if (web3ButtonContainerRef.current !== null) {
       const container = web3ButtonContainerRef.current as HTMLDivElement;
       container.replaceChildren();
       // Checking if the div is empty
@@ -175,8 +144,6 @@ function App() {
         rolesEnum: roleType,
         chainId: chainId,
         accessLevel: userAccessLevel,
-        // contractAddr: import.meta.env.VITE_SBT_CONTRACT_ADDRESS!,
-        // abi: abi,
       });
       web3Button.render(container);
       console.log("👉 A New Web3 Btn was Created!");
@@ -216,26 +183,12 @@ function App() {
     }
   };
 
-  // const checkContractDeployment = async (address: string): Promise<boolean> => {
-  //   try {
-  //     // const code = await provider.getCode(address);
-  //     // console.log("Contract Code: ", code);
-  //     // return code !== "0x";
-  //     const success = await cryptoPass.owner();
-  //   } catch (error) {
-  //     console.error(`Error checking contract at address ${address}:`, error);
-  //     return false;
-  //   }
-  // };
-
   const checkCryptoPassContractDeployment = async (): Promise<void> => {
-    // const success = await checkContractDeployment(cryptoPassContractAddr);
     const success = await cryptoPass.owner();
     if (success) setCryptoPassContractStatus(true);
   };
 
   const checkAccessTokenContractDeployment = async (): Promise<void> => {
-    // const success = await checkContractDeployment(accessTokenContractAddr);
     const success = await accessToken.owner();
 
     if (success) setAccessTokenContractStatus(true);
@@ -256,12 +209,10 @@ function App() {
 
   const checkWebServerAuthStatus = async () => {
     try {
-      // This is just a hypothetical endpoint. Replace with an actual auth check endpoint if different.
       const success = await cryptoPass._authPersonal(
         import.meta.env.VITE_WS_ADDRESS
       );
       if (success) {
-        console.log(success);
         setWebServerAuthStatus(true);
       } else {
         setWebServerAuthStatus(false);
@@ -285,7 +236,6 @@ function App() {
         enumifiedRole,
       });
       setOutput("✅ SoulBound Token Successfully Created!");
-      // if (!response.data.success) throw new Error("handleRequestSBT");
     } catch (error: any) {
       console.log("Error [Handler - handleRequestSBT]: ", error);
 
@@ -298,8 +248,6 @@ function App() {
       } else {
         setOutput("Something went wrong, Ensure you have entered an Address");
       }
-    } finally {
-      // setLoading(false);
     }
   };
 
@@ -349,28 +297,13 @@ function App() {
         </div>
       );
       setUserQRtokeId(response.data.At.atId);
-      // if (!response.data.success) throw new Error("handleRequestSBT");
     } catch (error) {
       console.log("Error [Handler]: ", error);
       setOutput(
         "Something Went Wrong. You may already have an Active Access Token!"
       );
-
-      // setOutput("The QR Access Code was created Successfully!");
     }
   };
-
-  // const handleGetQRdata = async () => {
-  //   try {
-  //     const response = await axios.post(WS_URL + "/qrCodeValidator", {
-  //       userAddress,
-  //       userRole,
-  //     });
-  //     if (!response.data.success) throw new Error("handleRequestSBT");
-  //   } catch (error) {
-  //     console.log("Error [Handler]: ", error);
-  //   }
-  // };
 
   const handleUseQR = async () => {
     try {
@@ -379,7 +312,6 @@ function App() {
       await axios.post(WS_URL + "qrCodeValidator", {
         decodedData,
       });
-      // if (!response.data.success) throw new Error("handleRequestSBT");
       setOutput("The QR Access Code was USED Successfully!");
       setCurrentQRToken(null);
       setDecodedData(null);
@@ -388,30 +320,6 @@ function App() {
       setOutput("Something went wrong, Ensure you have Scanned the QR Code");
     }
   };
-
-  // const saveQRCode = () => {
-  //   if (qrRef.current) {
-  //     const svg = qrRef.current.querySelector("svg");
-  //     if (svg) {
-  //       const serializer = new XMLSerializer();
-  //       const source = serializer.serializeToString(svg);
-  //       const img = new Image();
-  //       img.src = "data:image/svg+xml;base64," + btoa(source);
-  //       img.onload = function () {
-  //         const canvas = document.createElement("canvas");
-  //         canvas.width = img.width;
-  //         canvas.height = img.height;
-  //         const ctx = canvas.getContext("2d")!;
-  //         ctx.drawImage(img, 0, 0);
-  //         canvas.toBlob((blob) => {
-  //           saveAs(blob, "qrcode.png");
-  //         });
-  //       };
-  //     } else {
-  //       throw new Error("SVG is null");
-  //     }
-  //   }
-  // };
 
   return (
     <>
@@ -427,7 +335,6 @@ function App() {
       <div className="center-it section-01">
         <h2>Step #1</h2>
         <div className="status-container">
-          {/* <StatusDot status={walletConnection} label="Wallet Connection" /> */}
           <StatusDot status={hardhatStatus} label="Hardhat Local Blockchain" />
           <StatusDot
             status={cryptoPassContractStatus}
@@ -516,15 +423,12 @@ function App() {
                   <input
                     value={userAddress ?? "ERROR"}
                     placeholder="Now enter user's address..."
-                    // readOnly
-                    // onChange={() => getUserAddress()}
                     onChange={(e) => setUserAddress(e.target.value)}
                   />
                 ) : (
                   <input
                     value={"after login, enter user's address..."}
                     readOnly
-                    // onChange={() => getUserAddress()}
                     onChange={(e) => setUserAddress(e.target.value)}
                   />
                 )}
@@ -544,19 +448,13 @@ function App() {
               <div className="options-item">
                 <label>QR Token ID:</label>
                 {userQRtokeId === null ? (
-                  <input
-                    type="text"
-                    value={"no token yet..."}
-                    readOnly
-                    // onChange={(e) => setUserQRtokeId(Number(e.target.value))}
-                  />
+                  <input type="text" value={"no token yet..."} readOnly />
                 ) : (
                   <input
                     type="number"
                     value={userQRtokeId}
                     readOnly
                     ref={qrCodeRef}
-                    // onChange={(e) => setUserQRtokeId(Number(e.target.value))}
                   />
                 )}
               </div>
@@ -581,11 +479,6 @@ function App() {
             label="Request QR Code"
             isDisabled={btnIsActive}
           />
-          {/* <MyButton
-            clickHandler={handleGetQRdata}
-            label="Get Access Token Data"
-            isDisabled={btnIsActive}
-          /> */}
         </div>
         <div className="spacerY-24" />
         <div className="divider" />
@@ -622,7 +515,6 @@ function App() {
                     </div>
                   </>
                 )}
-                {/* <div className="spacerY" /> */}
               </>
             )}
           </>
@@ -674,11 +566,6 @@ function App() {
         <>
           {currentQRToken !== null && (
             <>
-              {/* <MyButton
-                clickHandler={saveQRCode}
-                label="Save QR Code Image"
-                isDisabled={currentQRToken === null ? true : false}
-              /> */}
               <div className="spacerY-24" />
               <QRDecoder
                 canvasRef={canvasRef}
@@ -689,125 +576,7 @@ function App() {
           )}
         </>
       </div>
-
-      {/* THE STEPS */}
-      {/* <>
-        <RunStep
-          stepNumber={1}
-          textPart="Install Frontend Deps"
-          codePart="cryptopass_frontend\vite-ui-test"
-        />
-        <RunStep
-          stepNumber={2}
-          textPart="Run the Vite, the Frontend"
-          codePart="npm run dev"
-        />
-        <RunStep
-          stepNumber={3}
-          textPart="Start the Local Blockchain, new terminal and"
-          codePart="PATH: cryptopass_smartContracts | npx hardhat node"
-        />
-        <RunStep
-          stepNumber={4}
-          textPart="Deploy the Contracts + Give ETH to WS"
-          codePart="npx hardhat run --network localhost scripts/actions/scriptRunner.ts"
-        />
-        <RunStep
-          stepNumber={5}
-          textPart="A CLI Menu will appear"
-          codePart="enter 13 and press 'Enter'"
-        />
-        <RunStep
-          stepNumber={6}
-          textPart="Create new terminal, Navigate to"
-          codePart="cryptopass_ws"
-        />
-        <RunStep
-          stepNumber={7}
-          textPart="There simply run"
-          codePart="npm start"
-        />
-        <RunStep
-          stepNumber={8}
-          textPart="You should see this"
-          codePart="Balance of The WS Wallet is: 250.0 ETH
-[GOOD]: WS is Authorized by the Contract!"
-        />
-        <RunStep
-          stepNumber={9}
-          textPart="Now Go back to the Frontend"
-          codePart="open Chrome..."
-        />
-        <RunStep
-          stepNumber={10}
-          textPart="Refresh the page (http://localhost:5173/), and all the dots should be green"
-          codePart="expect the last"
-        />
-        <RunStep
-          stepNumber={11}
-          textPart="Log in to Metamask"
-          codePart="npm start"
-        />
-        <RunStep
-          stepNumber={12}
-          textPart="You should have Custom Network for Hardhat"
-          codePart="RPC: http://127.0.0.1:8545/ | Chain ID: 1337"
-        />
-        <RunStep
-          stepNumber={13}
-          textPart="In the Frontend, press the 'Web3 Auth'"
-          codePart="npm start"
-        />
-        <RunStep
-          stepNumber={14}
-          textPart="This should make the Last red dot turn"
-          codePart="green"
-        />
-        <RunStep
-          stepNumber={15}
-          textPart="The request SBT, should display after pressing"
-          codePart="That you already have one"
-        />
-        <RunStep
-          stepNumber={16}
-          textPart="Press the 'Check SBT' to see your Access Level"
-          codePart="Should be Admin"
-        />
-        <RunStep
-          stepNumber={17}
-          textPart="By pressing the 'Request QR Code', A QR code generated from your SBT"
-          codePart="will be diplayed"
-        />
-        <RunStep
-          stepNumber={18}
-          textPart="Use your phone to capture the QR Code, and show the Image to your web cam"
-          codePart="Once it shakes, it means it got it"
-        />{" "}
-        <RunStep
-          stepNumber={19}
-          textPart="Now, press the 'Use Access Token', and the Access token is burned..."
-          codePart="for ever"
-        />{" "}
-        <RunStep
-          stepNumber={20}
-          textPart="Of course you can repeat this process for"
-          codePart="ever... and ever..."
-        />
-        <p className="read-the-docs">
-          Click on the Vite and React logos to learn more
-        </p>
-      </> */}
     </>
-  );
-}
-
-function RunStep({ stepNumber, textPart, codePart }: any) {
-  return (
-    <p>
-      {`Step ${stepNumber} | 
-      ${textPart}: `}
-      <code>{codePart}</code>
-    </p>
   );
 }
 
@@ -865,57 +634,7 @@ function QRDecoder({ canvasRef, setDecodedData, decodedData }: any) {
     }
   };
 
-  // const handleFileChange = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (!file) return;
-
-  //   const reader = new FileReader();
-  //   reader.onload = (e) => {
-  //     const img = new Image();
-  //     img.onload = () => {
-  //       const canvas = canvasRef.current;
-  //       const ctx = canvas.getContext("2d");
-  //       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  //       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  //       const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-  //       if (code) {
-  //         setDecodedData(JSON.parse(code.data));
-  //       } else {
-  //         console.error("QR code not found in the image.");
-  //       }
-  //     };
-  //     img.src = e.target.result;
-  //   };
-  //   reader.readAsDataURL(file);
-  // };
-
   return (
-    // <div>
-    //   <input type="file" onChange={handleFileChange} />
-    //   <canvas
-    //     ref={canvasRef}
-    //     width={400}
-    //     height={400}
-    //     style={{ display: "none" }}
-    //   ></canvas>
-    //   {decodedData && (
-    //     <>
-    //       <div className="spacerY-24" />
-    //       <div
-    //         style={{
-    //           border: "#dbe6e9aa solid 2px",
-    //           backgroundColor: "#61229dba",
-    //           borderRadius: 16,
-    //           padding: "8px 24px ",
-    //         }}
-    //       >
-    //         <h3>{JSON.stringify(decodedData)}</h3>
-    //       </div>
-    //     </>
-    //   )}
-    // </div>
     <div>
       <video ref={videoRef} width={400} height={400}></video>
       <h2>Use this Camera to scan the QR</h2>

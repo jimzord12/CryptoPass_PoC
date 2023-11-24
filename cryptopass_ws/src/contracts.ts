@@ -7,9 +7,6 @@ const hardhat = "http://127.0.0.1:8545/";
 const sepolia =
   "https://sepolia.infura.io/v3/" + process.env.INFURA_SEPOLIA_API_KEY;
 
-// *** Intinializing Web3 Staff...***
-// Getting a provider, a entity (usually a WS) which will given us access to the
-// blockchain network. In this case, Infura
 async function main() {
   // Creating a Wallet for our WS
   const privateKey = process.env.PRIVATE_KEY; // We need a Private key
@@ -20,13 +17,6 @@ async function main() {
 
   const signer = wallet.connect(provider); // Here (even though it not be needed) we infused the wallet with the provider
 
-  // Which effectively allows us to perform transaction to the network
-  // NOTE: If you do NOT do this, when performing read-only (calling a Solidity view function)
-  // call, the msg.sender address will be the zero-address (0x0000...0000) which depending on
-  // your WS logic, might not be what you want.
-  // const cryptoPassContractAddr = process.env.CRYPTOPASS_CONTRACT_ADDRESS;
-  // const accessTokenContractAddr = process.env.ACCESSTOKEN_CONTRACT_ADDRESS;
-  // This Automates the Contract Data Transfer when Testing
   const contractDataFromJSON = await import(
     "../../cryptopass_smartContracts/contractData.json"
   );
@@ -49,10 +39,7 @@ async function main() {
     accessTokenABI,
     signer
   );
-  // ### Ultra Important! ###
-  // 1. Do not forget to make the AccessToken a authorized Personel
-  // 2. Mint an SBT for AccessToken Contract
-  // ### Ultra Important! ###
+
   console.log("The WS Wallet Public Addr: ", walletAddr);
   // Fetch the balance
   provider.getBalance(walletAddr).then((balnaceInWei: ethers.BigNumberish) => {

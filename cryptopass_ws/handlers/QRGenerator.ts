@@ -3,7 +3,7 @@ import {
   accessToken as accessTokenContract,
   providerInitSuccessful,
 } from "../src/contracts.js";
-import QRCode from "qrcode";
+// import QRCode from "qrcode";
 import { getNumber } from "ethers";
 
 export const qrCodeCreator = async (ctx) => {

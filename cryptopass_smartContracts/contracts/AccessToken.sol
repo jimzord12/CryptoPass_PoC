@@ -18,7 +18,7 @@ interface ICryptoPass {
 
     function getUserRole(address user) external view returns (Role);
 
-    function hasSBT() external view returns (bool result);
+    function hasSBTuser(address to) external view returns (bool result);
 }
 
 // This "IERC721Receiver", allows the contract to receive the SoulBound NFT
@@ -28,7 +28,7 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
     Counters.Counter private _tokenIdCounter;
 
     struct TokenData {
-        uint256 id;
+        uint256 id; // The Token's ID
         ICryptoPass.Role role; // This is an Enum, see Types.sol
         uint256 exp; // expiration block number
     }
@@ -63,9 +63,12 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
     }
 
     function mintToken(address to) public returns (uint256) {
-        require(uint(cryptoPassContract.getUserRole(msg.sender)) > 2);
         require(
-            cryptoPassContract.hasSBT(),
+            uint(cryptoPassContract.getUserRole(msg.sender)) > 2,
+            "CPATK: Caller Does not possess enough Access Level"
+        );
+        require(
+            cryptoPassContract.hasSBTuser(to),
             "CPATK: Caller Does not possess an SBT"
         );
         if (balanceOf(to) > 0) {
@@ -124,7 +127,7 @@ contract AccessToken is ERC721, Ownable, IERC721Receiver {
         require(!_isTokenExpired(tokenId), "CPATK: Token has expired");
         require(
             balanceOf(ownerOf(tokenId)) == 1,
-            "CPATK: User already has an Unused and Unexpired AccessToken"
+            "CPATK: User does not possess an AccessToken"
         );
         address tokenOwner = ownerOf(tokenId);
         _burn(tokenId); // Token can only be used once

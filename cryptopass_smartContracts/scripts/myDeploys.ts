@@ -38,24 +38,6 @@ export async function main() {
       "The WS_ADDRESS environment variable is not a valid Ethereum address!"
     );
   } else {
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
-    console.log(
-      "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    );
     // Giving Hono Web Server Auth + SBT
     await authorizeAddress(ws_address, "deployer");
     await createSBT(ws_address, 4, "deployer");
