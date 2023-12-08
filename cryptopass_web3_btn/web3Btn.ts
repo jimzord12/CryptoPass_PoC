@@ -157,6 +157,10 @@ export class Web3Button implements IWeb3Button {
                 this.accessLevel
               );
             } else {
+              if (roleNumber === 0) {
+                console.log("⛔ You do NOT possess a SBT Token!");
+                this._showErrorNotification("You do NOT possess a SBT Token!");
+              }
               console.log(
                 "⛔ Your Access Level is does NOT meet the Requirements!"
               );
@@ -165,6 +169,7 @@ export class Web3Button implements IWeb3Button {
                   this.rolesEnum[this.accessLevel!]
                 }]\n Your Access level is: [${parsedRole}]`
               );
+              return;
             }
           } catch (error) {
             console.log("ERRRRROR: ", error);
